@@ -1,0 +1,67 @@
+name: Task
+description: Track a bounded piece of work or maintenance activity.
+title: "[TASK] "
+labels: ["task"]
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include passwords, tokens, private user data, or sensitive vulnerability details."
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or context
+      description: Why is this work needed?
+      placeholder: Describe the current situation and impact.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Intended outcome
+      description: What should be true when this is complete?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Include what is in scope and out of scope.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: List observable, testable criteria.
+      placeholder: "- [ ] ..."
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - P0 - Urgent
+        - P1 - Foundation
+        - P2 - Important
+        - P3 - Later
+    validations:
+      required: true
+  - type: dropdown
+    id: size
+    attributes:
+      label: Estimate
+      options:
+        - XS
+        - S
+        - M
+        - L
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies, risks, and next action
+      description: Mention related issues and blockers, or write "None known".
+    validations:
+      required: true
