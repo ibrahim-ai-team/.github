@@ -1,65 +1,38 @@
-# Organization Work and Delivery Workflow
+# Organization Work and Delivery
 
-## Source of truth and repository boundaries
+This repository owns organization-level community health, shared defaults, cross-repository coordination, and organization governance. It does not own the implementation of agents, skills, code, tests, or runtime behavior.
 
-- Use issues in this `.github` repository for organization-wide process, governance, onboarding, and shared-policy work.
-- Use issues in the relevant implementation repository for product/code changes, agent and skill implementation, tests, and repository-specific defects.
-- Link related issues across repositories instead of duplicating the same work.
-- Use the organization GitHub Project as the cross-repository view when available. A board is a view of the work, not a replacement for the issues.
+## Repository boundaries
 
-## Status meanings
+- **Organization-wide:** organization profile, repository inventory, contribution/support/security reporting guidance, reusable issue/PR defaults, cross-repository delivery conventions, and settings-verification tracking.
+- **AI Software Team:** agent/skill implementation, engineering standards, Claude instructions and permissions, validation scripts, CI workflows, and implementation-specific handover/release/ADR procedures.
+- **Other repositories:** product-specific implementation and delivery rules.
 
-| Status | Meaning |
-| --- | --- |
-| Backlog | Identified, not yet ready to start. |
-| Ready | Scope, acceptance criteria, dependencies, priority, and next action are clear. |
-| In Progress | Someone is actively working on it. |
-| In Review | A pull request or deliverable is awaiting review. |
-| Changes Requested | Review found changes required before acceptance. |
-| Blocked | Work cannot proceed; the blocker and owner are recorded. |
-| Done | Acceptance criteria are met and evidence is linked in the issue or PR. |
+Keep one authoritative copy of implementation guidance in its owning repository. Link to it rather than copying it here. Use cross-repository issues when one change requires work in both places.
 
-These are workflow statuses, not labels or native GitHub Issue Types. Configure them as Project Status options where supported; do not imply that writing them in an issue body changes the Project field.
+## Issue readiness and delivery
 
-## Priority and size
+Actionable issues should describe the problem and intended outcome, scope, testable acceptance criteria, priority, dependencies/risks, and evidence required for closure. Do not include credentials, tokens, private data, or public exploit details.
 
-- **P0 — Urgent:** immediate security, data-loss, or service-impacting issue.
-- **P1 — Foundation:** required to establish safe and usable team infrastructure.
-- **P2 — Important:** valuable improvement after foundation work.
-- **P3 — Later:** optional improvement or sustainable maintenance.
-- **Size:** XS (tiny), S (small), M (medium), L (large). Split work larger than L.
+Use the organization Project for a cross-repository view when configured. Project status is a field, not a label or a sentence in an issue body. Suggested meanings:
 
-Priority and size are planning aids, not promises of delivery dates.
+- **Backlog:** identified, not ready.
+- **Ready:** scope, acceptance criteria, priority, dependencies, and next action are clear.
+- **In Progress:** actively being worked.
+- **In Review:** PR or deliverable awaits review.
+- **Blocked:** blocker and next action are recorded.
+- **Done:** acceptance criteria are met and evidence is linked.
 
-## Issue quality
+Suggested priority: **P0** urgent security/data/service impact; **P1** foundation; **P2** important; **P3** later. Priority is not a delivery-date promise.
 
-Every actionable issue should state:
-1. Problem or opportunity and intended outcome.
-2. In-scope and out-of-scope work.
-3. Testable acceptance criteria.
-4. Priority, size, dependencies, and risks when relevant.
-5. Owner or next action.
-6. Evidence required before closure.
+## Pull requests and completion
 
-Never include credentials, tokens, private user data, or vulnerability exploit details in public issues.
+1. Use a focused branch for non-trivial work; do not commit directly to `main`.
+2. Link the issue and explain the change, validation performed, risks, and follow-up work.
+3. Request review and resolve feedback before merging.
+4. Keep final merge authority with the human maintainer.
+5. Close work only when accepted, with a merged PR, commit, verified settings evidence, or a clear not-planned rationale.
 
-## Branch and pull-request workflow
+## Triage
 
-1. Start with an issue for non-trivial work.
-2. Create a focused branch; never commit directly to `main`.
-3. Keep each PR small enough to review and link it to the issue.
-4. Include tests or validation evidence, documentation updates, risks, and rollback notes where applicable.
-5. Request review and address feedback.
-6. The human maintainer has final approval and merge authority.
-7. Close the issue only after the deliverable is merged or otherwise demonstrably accepted. If work is deferred, close it as not planned with a rationale rather than claiming completion.
-
-## Triage and handover
-
-- Review the backlog monthly, and before planning a new sprint.
-- Remove duplicates carefully, refresh priorities, identify blocked/stale issues, and ensure each Ready item has a clear next action.
-- At session end, record the active issue, branch/PR, verified results, decisions, blockers, and next action in the issue or a linked handover note.
-- Never place secrets in handover notes.
-
-## Completion evidence
-
-A closed issue must link to the merged PR, relevant commit, verified settings evidence, or an explicit rationale for a non-implementation outcome. A closed state alone is not proof that the Definition of Done was met.
+Review the organization backlog monthly and before sprint planning. Identify duplicates carefully, update stale priorities, record blockers and next actions, and avoid opening repeated issues for the same work. For implementation-specific procedures, use the [AI Software Team repository](https://github.com/ibrahim-ai-team/ai-software-team).
