@@ -1,11 +1,10 @@
 name: Task
 description: Track a bounded piece of work or maintenance activity.
-title: "[TASK] "
-labels: ["task"]
+title: ""
 body:
   - type: markdown
     attributes:
-      value: "Do not include passwords, tokens, private user data, or sensitive vulnerability details."
+      value: "Do not include passwords, tokens, private user data, or sensitive vulnerability details. After creating the issue, set its native GitHub Issue Type to Task when that field is available; this form does not set native issue types."
   - type: textarea
     id: problem
     attributes:
