@@ -7,10 +7,16 @@ This organization maintains reusable AI-assisted software engineering infrastruc
 ## Repositories
 
 - **[AI Software Team](https://github.com/ibrahim-ai-team/ai-software-team)** — agents, skills, prompts, engineering standards, runtime configuration, validation, and implementation workflows.
+- **[Organization backlog](https://github.com/ibrahim-ai-team/.github/issues)** — profile, community-health, shared templates, repository inventory, and cross-repository coordination work.
+- **[AI Software Team issues](https://github.com/ibrahim-ai-team/ai-software-team/issues)** — implementation backlog for agents, skills, validation, and engineering workflows.
 - **[Organization repository inventory](../docs/REPOSITORY-INVENTORY.md)** — repository catalog and known ownership gaps.
 - **[Organization delivery workflow](../docs/WORKFLOW.md)** — cross-repository issue quality, delivery conventions, and completion evidence.
 - **[Security baseline](../docs/SECURITY-BASELINE.md)** — observed repository metadata and settings that still need verification.
 - **[Contributing](../CONTRIBUTING.md)** · **[Support](../SUPPORT.md)** · **[Security reporting](../SECURITY.md)**
+
+## Current phase
+
+The focus is establishing and validating the shared agent and skills foundation before product-specific development. Follow the implementation backlog in [AI Software Team issues](https://github.com/ibrahim-ai-team/ai-software-team/issues). Security and runtime capabilities are not considered verified until supported by observable evidence.
 
 ## Principles
 
@@ -20,5 +26,3 @@ This organization maintains reusable AI-assisted software engineering infrastruc
 - Use issues, branches, pull requests, and observable validation evidence.
 - Protect credentials and secrets.
 - Human approval remains required for consequential changes.
-
-The team infrastructure is being established before product-specific development begins.
