@@ -14,6 +14,7 @@ It is **not** the implementation repository for the AI development team. Reusabl
 - `docs/SECURITY-BASELINE.md` — evidence register for repository metadata and security settings that still require verification.
 - `docs/MAINTENANCE.md` — lightweight maintenance checklist.
 - `CONTRIBUTING.md`, `SUPPORT.md`, and `SECURITY.md` — contribution, support, and vulnerability-reporting guidance.
+- `LICENSE` — MIT license for this repository's shared documentation and templates.
 
 ## How to use the shared defaults
 
@@ -39,4 +40,4 @@ Read [SECURITY.md](SECURITY.md) for private vulnerability-reporting guidance. Th
 
 ## License
 
-This repository is intended to share reusable documentation and GitHub templates. It is proposed to be released under the MIT License; see [LICENSE](LICENSE).
+The shared documentation and templates in this repository are licensed under the [MIT License](LICENSE).
