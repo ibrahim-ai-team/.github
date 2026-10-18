@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability privately
+    url: https://github.com/ibrahim-ai-team/.github/blob/main/SECURITY.md
+    about: Do not post vulnerability details or secrets in a public issue.
+  - name: Support and project questions
+    url: https://github.com/ibrahim-ai-team/.github/blob/main/SUPPORT.md
+    about: Read the support guidance before opening a general question.
