@@ -14,18 +14,27 @@
 
 | Control / property | Status | Evidence |
 | --- | --- | --- |
-| `ibrahim-ai-team/.github` visibility | VERIFIED | Repository listing reports public |
-| `ibrahim-ai-team/.github` default branch | VERIFIED | Repository listing reports main |
-| `ibrahim-ai-team/.github` archived | VERIFIED | Repository listing reports no |
-| `ibrahim-ai-team/ai-software-team` visibility | VERIFIED | Repository listing reports public |
-| `ibrahim-ai-team/ai-software-team` default branch | VERIFIED | Repository listing reports main |
-| `ibrahim-ai-team/ai-software-team` archived | VERIFIED | Repository listing reports no |
+| `ibrahim-ai-team/.github` visibility | VERIFIED | GitHub repository metadata reports public |
+| `ibrahim-ai-team/.github` default branch | VERIFIED | GitHub repository metadata reports `main` |
+| `ibrahim-ai-team/.github` archived | VERIFIED | GitHub repository metadata reports false |
+| `ibrahim-ai-team/ai-software-team` visibility | VERIFIED | Connected repository listing reports public |
+| `ibrahim-ai-team/ai-software-team` default branch | VERIFIED | Connected repository listing reports `main` |
+| `ibrahim-ai-team/ai-software-team` archived | VERIFIED | Connected repository listing reports false |
+| Repositories visible in connected organization listing | VERIFIED (snapshot) | Listing returned `.github` and `ai-software-team`; this is a point-in-time connected-account view, not proof that no other repositories exist |
+
+## Checks performed on 2026-10-18
+
+- A read of the repository rulesets endpoint returned an empty list in the connected view. This does **not** prove that no inherited organization rules or other enforcement mechanisms apply.
+- The branch-protection endpoint for `main` returned HTTP 403 (Resource not accessible by integration). Branch protection, required reviews, required checks, and force-push/deletion restrictions therefore remain **NOT VERIFIED**.
+- The available repository tree contains no local GitHub Actions workflow files. This does not verify organization-wide Actions policy or settings.
+- No credentials or obvious secrets were identified during the limited file-content review. This was not a comprehensive secret scan and is not a security guarantee.
+- The public repository has no `LICENSE` on the reviewed default-branch snapshot; the proposed branch adds an MIT license for the shared documentation and templates. Review the license in the pull request before merge.
 
 ## Controls requiring direct verification
 
 These controls remain **NOT VERIFIED** until settings or authoritative API responses are reviewed:
 
-- Branch protection or repository rulesets for `main`
+- Branch protection or repository rulesets and any inherited organization rules for `main`
 - Pull request review requirements and required status checks
 - Restrictions on force pushes and branch deletion
 - Secret scanning and push protection
@@ -47,4 +56,4 @@ These controls remain **NOT VERIFIED** until settings or authoritative API respo
 
 ## Completion rule
 
-Issue ORG-06 is complete only when the inventory is reviewed and each repository has a confirmed named owner or an explicit accepted ownership gap. Issue ORG-07 (security defaults) is complete only after applicable controls have been inspected and gaps have owners/actions. Merging this document does not itself configure any security setting.
+Issue #6 is complete only when the inventory is reviewed and each repository has a confirmed named owner or an explicit accepted ownership gap. Issue #7 is complete only after applicable controls have been inspected and gaps have owners/actions. Merging this document does not itself configure any security setting.
