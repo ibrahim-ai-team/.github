@@ -25,6 +25,9 @@ Ibrahim AI Team is an evolving workspace for designing a practical AI-assisted s
 ## Start here
 
 - [AI Software Team repository](https://github.com/ibrahim-ai-team/ai-software-team) — shared architecture, standards, and team configuration.
+- [Organization workflow](../docs/WORKFLOW.md) — issue quality, statuses, priorities, delivery, and handover conventions.
+- [Repository inventory](../docs/REPOSITORY-INVENTORY.md) — current repository catalog and ownership gaps.
+- [Security baseline](../docs/SECURITY-BASELINE.md) — observed facts and security controls that still need verification.
 - [Contribution guide](../CONTRIBUTING.md) — branch, pull request, and review expectations.
 - [Support](../SUPPORT.md) — where to ask questions and report problems.
 - [Security policy](../SECURITY.md) — how to report vulnerabilities privately.
