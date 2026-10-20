@@ -20,7 +20,7 @@
 | `ibrahim-ai-team/ai-software-team` visibility | VERIFIED | Connected repository listing reports public |
 | `ibrahim-ai-team/ai-software-team` default branch | VERIFIED | Connected repository listing reports `main` |
 | `ibrahim-ai-team/ai-software-team` archived | VERIFIED | Connected repository listing reports false |
-| Repositories visible in connected organization listing | VERIFIED (snapshot) | Listing returned `.github` and `ai-software-team`; this is a point-in-time connected-account view, not proof that no other repositories exist |
+| Repositories visible in connected organization listing | VERIFIED | Listing returned `.github` and `ai-software-team`; this is a point-in-time connected-account view, not proof that no other repositories exist |
 
 ## Checks performed on 2026-10-18
 
@@ -30,7 +30,7 @@ The 2026-10-20 inspection below supersedes the NOT VERIFIED results here for `.g
 - The branch-protection endpoint for `main` returned HTTP 403 (Resource not accessible by integration). Branch protection, required reviews, required checks, and force-push/deletion restrictions therefore remain **NOT VERIFIED**.
 - The available repository tree contains no local GitHub Actions workflow files. This does not verify organization-wide Actions policy or settings.
 - No credentials or obvious secrets were identified during the limited file-content review. This was not a comprehensive secret scan and is not a security guarantee.
-- The public repository has no `LICENSE` on the reviewed default-branch snapshot; the proposed branch adds an MIT license for the shared documentation and templates. Review the license in the pull request before merge.
+- The default branch had no `LICENSE` before 2026-10-18; an MIT license for the shared documentation and templates was added in #24 (consistent with `ai-software-team`, which GitHub reports as MIT).
 
 ## `ibrahim-ai-team/.github` settings inspected on 2026-10-20
 
