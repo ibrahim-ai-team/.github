@@ -39,17 +39,6 @@ body:
       description: Include versions, sanitized logs, screenshots, or test output. Remove secrets and personal data.
     validations:
       required: true
-  - type: dropdown
-    id: priority
-    attributes:
-      label: Priority
-      options:
-        - P0 - Urgent
-        - P1 - Foundation
-        - P2 - Important
-        - P3 - Later
-    validations:
-      required: true
   - type: textarea
     id: workaround
     attributes:

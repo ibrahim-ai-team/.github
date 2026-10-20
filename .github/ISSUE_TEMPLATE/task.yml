@@ -35,28 +35,6 @@ body:
       placeholder: "- [ ] ..."
     validations:
       required: true
-  - type: dropdown
-    id: priority
-    attributes:
-      label: Priority
-      options:
-        - P0 - Urgent
-        - P1 - Foundation
-        - P2 - Important
-        - P3 - Later
-    validations:
-      required: true
-  - type: dropdown
-    id: size
-    attributes:
-      label: Estimate
-      options:
-        - XS
-        - S
-        - M
-        - L
-    validations:
-      required: true
   - type: textarea
     id: dependencies
     attributes:
