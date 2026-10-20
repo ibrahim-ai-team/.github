@@ -1,11 +1,11 @@
 name: Feature
 description: Propose a capability or meaningful improvement.
-title: "[FEATURE] "
 labels: ["enhancement"]
+type: Feature
 body:
   - type: markdown
     attributes:
-      value: "Do not include passwords, tokens, private user data, or sensitive vulnerability details."
+      value: "Search existing issues first. Do not include passwords, tokens, private user data, or sensitive vulnerability details; report vulnerabilities privately as described in [SECURITY.md](https://github.com/ibrahim-ai-team/.github/blob/main/SECURITY.md)."
   - type: textarea
     id: opportunity
     attributes:
@@ -49,13 +49,14 @@ body:
     id: size
     attributes:
       label: Estimate
+      description: Optional. Leave blank if unsure; a maintainer will estimate during triage.
       options:
         - XS
         - S
         - M
         - L
     validations:
-      required: true
+      required: false
   - type: textarea
     id: dependencies
     attributes:
