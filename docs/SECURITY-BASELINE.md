@@ -54,7 +54,7 @@ Read with an admin-scoped integration token through the GitHub REST API. No sett
 
 ### Gaps and proposed actions
 
-Each item needs an organization owner decision in **Settings**; documentation does not change them.
+Each item needs an organization owner decision in **Settings**; documentation does not change them. They are tracked in [#26](https://github.com/ibrahim-ai-team/.github/issues/26).
 
 1. **Protect `main` with a ruleset.** Block force pushes and deletion, and require changes to go through a pull request. With a single admin, requiring an approving review would block every merge; either set required approvals to 0 or give the admin a bypass, until a second maintainer exists.
 2. **Enable secret scanning and push protection.** Both are free for public repositories.

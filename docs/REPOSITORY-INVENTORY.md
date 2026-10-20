@@ -12,7 +12,7 @@
 
 ## Known gaps
 
-- **`.github` repository description is wrong.** GitHub shows "AI-powered software engineering team: reusable agents, skills, automation, and Agile delivery workflows." That describes `ai-software-team` and contradicts this repository's boundary. Proposed description, which an admin changes in **Settings → General**: "Organization profile, shared issue/PR templates, and community-health and governance docs for Ibrahim AI Team."
+- **`.github` repository description is wrong.** GitHub shows "AI-powered software engineering team: reusable agents, skills, automation, and Agile delivery workflows." That describes `ai-software-team` and contradicts this repository's boundary. Proposed description, which an admin changes in **Settings → General** (tracked in [#26](https://github.com/ibrahim-ai-team/.github/issues/26)): "Organization profile, shared issue/PR templates, and community-health and governance docs for Ibrahim AI Team."
 - **Ownership:** the maintainer should either confirm the named owner for each repository or explicitly accept the gap.
 
 ## Maintenance

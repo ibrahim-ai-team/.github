@@ -31,7 +31,7 @@ Each kind of metadata has one home. Don't record the same fact in two places.
 
 | Metadata | Where it lives | Convention |
 | --- | --- | --- |
-| Kind of work | Native **Issue Type** (Bug, Feature, Task) | Set it after the issue is created; issue forms cannot set it. Issue Types are enabled: [#15](https://github.com/ibrahim-ai-team/.github/issues/15) has the `Feature` type (VERIFIED 2026-10-20). The organization's full type list could not be read (API 403), so whether `Bug` and `Task` exist is NOT VERIFIED. |
+| Kind of work | Native **Issue Type** (Bug, Feature, Task) | Set it after the issue is created; issue forms cannot set it. Issue Types are enabled. `Feature` ([#15](https://github.com/ibrahim-ai-team/.github/issues/15)) and `Task` ([#26](https://github.com/ibrahim-ai-team/.github/issues/26)) are VERIFIED in use as of 2026-10-20. The organization's full type list could not be read (API 403), so `Bug` is NOT VERIFIED. |
 | Topic | Labels | Use GitHub's default labels: `bug` and `enhancement` (applied by the Bug and Feature forms), `documentation`, `question`, `duplicate`, `invalid`, `wontfix`, `good first issue`, `help wanted`, `accessibility`. These are the only labels on `.github` as of 2026-10-20. Don't add priority, status, or type labels. |
 | Priority | Issue form field (P0–P3), and the Project field when configured | Meanings are listed above. |
 | Status | Organization Project **Status** field | Values are listed above. Don't track status in labels or titles. |
