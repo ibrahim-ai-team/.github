@@ -19,8 +19,8 @@ It is **not** the implementation repository for the AI development team. Reusabl
 ## How to use the shared defaults
 
 1. **Choose the owning repository first.** Use [`.github` issues](https://github.com/ibrahim-ai-team/.github/issues) for organization profile, shared defaults, repository inventory, and cross-repository governance. Use [`ai-software-team` issues](https://github.com/ibrahim-ai-team/ai-software-team/issues) for agents, skills, Claude configuration, engineering standards, validation, and implementation workflows.
-2. **Create an actionable issue.** Choose the Bug, Feature, or Task form. State the problem or goal, scope, observable acceptance criteria, priority, dependencies, and next action. Do not include secrets or sensitive vulnerability details.
-3. **Use metadata accurately.** The issue forms apply a label and the native Issue Type, but not Project fields. Set Project fields in GitHub itself; see [the delivery workflow](docs/WORKFLOW.md).
+2. **Create an actionable issue.** Choose the Bug, Feature, or Task form. State the problem or goal, scope, observable acceptance criteria, dependencies, and next action. Do not include secrets or sensitive vulnerability details.
+3. **Use metadata accurately.** The issue forms apply a label and the native Issue Type. Maintainers set the native Priority and Effort fields in the issue sidebar; see [the delivery workflow](docs/WORKFLOW.md).
 4. **Work on a branch and open a pull request.** Link the issue, summarize the change, include validation evidence, and explain risks. Do not commit directly to `main`.
 5. **Keep human review authoritative.** Automated checks do not replace maintainer review. Do not merge until the human maintainer explicitly approves.
 
