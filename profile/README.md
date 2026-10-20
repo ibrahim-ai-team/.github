@@ -9,10 +9,10 @@ This organization maintains reusable AI-assisted software engineering infrastruc
 - **[AI Software Team](https://github.com/ibrahim-ai-team/ai-software-team)** — agents, skills, prompts, engineering standards, runtime configuration, validation, and implementation workflows.
 - **[Organization backlog](https://github.com/ibrahim-ai-team/.github/issues)** — profile, community-health, shared templates, repository inventory, and cross-repository coordination work.
 - **[AI Software Team issues](https://github.com/ibrahim-ai-team/ai-software-team/issues)** — implementation backlog for agents, skills, validation, and engineering workflows.
-- **[Organization repository inventory](../docs/REPOSITORY-INVENTORY.md)** — repository catalog and known ownership gaps.
-- **[Organization delivery workflow](../docs/WORKFLOW.md)** — cross-repository issue quality, delivery conventions, and completion evidence.
-- **[Security baseline](../docs/SECURITY-BASELINE.md)** — observed repository metadata and settings that still need verification.
-- **[Contributing](../CONTRIBUTING.md)** · **[Support](../SUPPORT.md)** · **[Security reporting](../SECURITY.md)**
+- **[Organization repository inventory](https://github.com/ibrahim-ai-team/.github/blob/main/docs/REPOSITORY-INVENTORY.md)** — repository catalog and known ownership gaps.
+- **[Organization delivery workflow](https://github.com/ibrahim-ai-team/.github/blob/main/docs/WORKFLOW.md)** — cross-repository issue quality, delivery conventions, and completion evidence.
+- **[Security baseline](https://github.com/ibrahim-ai-team/.github/blob/main/docs/SECURITY-BASELINE.md)** — observed repository metadata and settings that still need verification.
+- **[Contributing](https://github.com/ibrahim-ai-team/.github/blob/main/CONTRIBUTING.md)** · **[Support](https://github.com/ibrahim-ai-team/.github/blob/main/SUPPORT.md)** · **[Security reporting](https://github.com/ibrahim-ai-team/.github/blob/main/SECURITY.md)**
 
 ## Current phase
 
