@@ -25,6 +25,19 @@ Use the organization Project for a cross-repository view when configured. Projec
 
 Suggested priority: **P0** urgent security/data/service impact; **P1** foundation; **P2** important; **P3** later. Priority is not a delivery-date promise.
 
+## Issue metadata
+
+Each kind of metadata has one home. Don't record the same fact in two places.
+
+| Metadata | Where it lives | Convention |
+| --- | --- | --- |
+| Kind of work | Native **Issue Type** (Bug, Feature, Task) | Set it after the issue is created; issue forms cannot set it. Issue Types are enabled: [#15](https://github.com/ibrahim-ai-team/.github/issues/15) has the `Feature` type (VERIFIED 2026-10-20). The organization's full type list could not be read (API 403), so whether `Bug` and `Task` exist is NOT VERIFIED. |
+| Topic | Labels | Use GitHub's default labels: `bug` and `enhancement` (applied by the Bug and Feature forms), `documentation`, `question`, `duplicate`, `invalid`, `wontfix`, `good first issue`, `help wanted`, `accessibility`. These are the only labels on `.github` as of 2026-10-20. Don't add priority, status, or type labels. |
+| Priority | Issue form field (P0–P3), and the Project field when configured | Meanings are listed above. |
+| Status | Organization Project **Status** field | Values are listed above. Don't track status in labels or titles. |
+
+Repositories may add their own labels for work that only concerns them. Add an organization-wide label only if it is needed across repositories, and propose it in a `.github` issue first.
+
 ## Pull requests and completion
 
 1. Use a focused branch for non-trivial work; do not commit directly to `main`.
