@@ -1,5 +1,7 @@
 # Organization Work and Delivery
 
+> The canonical state definitions and transition validation are defined in [`models/status.py`](https://github.com/ibrahim-ai-team/ai-software-team/blob/main/models/status.py). This document is a cross-repo summary; if there is a discrepancy, the code is authoritative. The board transition/evidence contract is documented in [`workflows/project-status-transitions.md`](https://github.com/ibrahim-ai-team/ai-software-team/blob/main/workflows/project-status-transitions.md).
+
 This repository owns organization-level community health, shared defaults, cross-repository coordination, and organization governance. It does not own the implementation of agents, skills, code, tests, or runtime behavior.
 
 ## Repository boundaries
@@ -14,14 +16,22 @@ Keep one authoritative copy of implementation guidance in its owning repository.
 
 Actionable issues should describe the problem and intended outcome, scope, testable acceptance criteria, priority, dependencies/risks, and evidence required for closure. Do not include credentials, tokens, private data, or public exploit details.
 
-Use the organization Project for a cross-repository view when configured. Project status is a field, not a label or a sentence in an issue body. Suggested meanings:
+### Canonical board status mapping
 
-- **Backlog:** identified, not ready.
-- **Ready:** scope, acceptance criteria, priority, dependencies, and next action are clear.
-- **In Progress:** actively being worked.
-- **In Review:** PR or deliverable awaits review.
-- **Blocked:** blocker and next action are recorded.
-- **Done:** acceptance criteria are met and evidence is linked.
+The organization board uses the following eight display labels, mapped to the implementation's `TaskStatus` enum. The complete enum and allowed transitions remain authoritative in `models/status.py` and `workflows/project-status-transitions.md`.
+
+- Backlog → `BACKLOG`
+- Ready → `READY`
+- In Progress → `IN_PROGRESS`
+- In Review → `IN_REVIEW`
+- Changes Requested → `CHANGES_REQUESTED`
+- Approved — Awaiting Human Merge → `APPROVED_AWAITING_HUMAN_MERGE`
+- Blocked → `BLOCKED`
+- Done → `DONE`
+
+The implementation also defines `CLAIMED` and `CANCELLED` as implementation-only task states; they are intentionally not organization-board labels. Do not infer board status from issue titles, labels, or body text.
+
+Readiness meanings: **Ready** means scope, acceptance criteria, priority, dependencies, and next action are clear. **In Progress** means work is active. **In Review** means a PR or deliverable awaits review. **Blocked** means the blocker and next action are recorded. **Done** requires accepted completion evidence and verified human merge, as defined in the implementation workflow.
 
 Priority uses the organization's native **Priority** issue field: **Urgent** for security, data, or service impact; **High** for foundation work; **Medium** for important work; **Low** for later. Priority is not a delivery-date promise.
 
@@ -36,7 +46,7 @@ Each kind of metadata has one home. Don't record the same fact in two places.
 | Priority | Native **Priority** issue field (Urgent, High, Medium, Low) | Meanings are listed above. A maintainer sets it in the issue sidebar while creating the issue or during triage. The issue forms don't ask for it. |
 | Effort | Native **Effort** issue field (High, Medium, Low) | Set by a maintainer during triage. |
 | Dates | Native **Start date** and **Target date** issue fields | Optional; use them only when a date is committed. |
-| Status | Organization Project **Status** field | Values are listed above. Don't track status in labels or titles. |
+| Status | Organization Project **Status** field | Use the eight-label mapping above. Don't track status in labels or titles. |
 
 Repositories may add their own labels for work that only concerns them. Add an organization-wide label only if it is needed across repositories, and propose it in a `.github` issue first.
 
