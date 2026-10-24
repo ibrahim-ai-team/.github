@@ -1,0 +1,98 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  yaml-lint:
+    name: yaml-lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate issue form YAML structure (stdlib-only)
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          import sys
+
+          files = sorted(Path(".github/ISSUE_TEMPLATE").glob("*.yml"))
+          if not files:
+              print("No issue-template YAML files found.")
+              raise SystemExit(0)
+          errors = []
+          for path in files:
+              text = path.read_text(encoding="utf-8")
+              if not text.strip():
+                  errors.append(f"{path}: empty file")
+                  continue
+              if "\t" in text:
+                  errors.append(f"{path}: tab character found; YAML indentation must use spaces")
+              if text.count("---") % 2:
+                  errors.append(f"{path}: unmatched YAML document marker")
+              if path.name != "config.yml":
+                  for key in ("name:", "description:", "title:", "labels:", "body:"):
+                      if not re.search(rf"(?m)^{re.escape(key)}", text):
+                          errors.append(f"{path}: missing expected issue-form key {key}")
+              # Basic indentation sanity check; deliberately no third-party YAML dependency.
+              for number, line in enumerate(text.splitlines(), 1):
+                  if line.strip() and line.lstrip().startswith("-") and line[:1].isspace():
+                      indent = len(line) - len(line.lstrip())
+                      if indent % 2:
+                          errors.append(f"{path}:{number}: list indentation is not a multiple of two")
+          if errors:
+              print("\n".join(errors), file=sys.stderr)
+              raise SystemExit(1)
+          print(f"PASS: basic YAML structure checks for {len(files)} issue-template files")
+          PY
+
+  markdown-lint:
+    name: markdown-lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check relative Markdown links
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          import sys
+          root = Path(".").resolve()
+          errors = []
+          for doc in sorted(Path("docs").glob("*.md")):
+              text = doc.read_text(encoding="utf-8")
+              for target in re.findall(r"(?<!!)\[[^\]]*\]\(([^)]+)\)", text):
+                  target = target.strip().split("#", 1)[0]
+                  if not target or re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*:", target) or target.startswith("//"):
+                      continue
+                  candidate = (doc.parent / target).resolve()
+                  if not candidate.exists():
+                      errors.append(f"{doc}: broken relative link: {target}")
+          if errors:
+              print("\n".join(errors), file=sys.stderr)
+              raise SystemExit(1)
+          print("PASS: relative Markdown links in docs/*.md")
+          PY
+      - name: Check cross-repository state mapping when implementation checkout exists
+        run: |
+          if [ -f ../ai-software-team/models/status.py ]; then
+            python scripts/check_state_drift.py --impl-repo ../ai-software-team
+          else
+            echo "WARN: ../ai-software-team checkout absent; cross-repo state drift check skipped."
+          fi
+
+  protection-check:
+    name: protection-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify live repository hardening (warning-only without authenticated gh)
+        run: scripts/verify_repo_hardening.sh --ci
