@@ -87,6 +87,47 @@ jobs:
           else
             echo "WARN: ../ai-software-team checkout absent; cross-repo state drift check skipped."
           fi
+      - name: Unit-test state drift checker with aligned and divergent fixtures
+        run: |
+          set -eu
+          tmp="$(mktemp -d)"
+          mkdir -p "$tmp/impl/models"
+          cat > "$tmp/impl/models/status.py" <<'PY'
+          class TaskStatus(str, Enum):
+              BACKLOG = "BACKLOG"
+              READY = "READY"
+              IN_PROGRESS = "IN_PROGRESS"
+              IN_REVIEW = "IN_REVIEW"
+              CHANGES_REQUESTED = "CHANGES_REQUESTED"
+              APPROVED_AWAITING_HUMAN_MERGE = "APPROVED_AWAITING_HUMAN_MERGE"
+              BLOCKED = "BLOCKED"
+              DONE = "DONE"
+              CLAIMED = "CLAIMED"
+              CANCELLED = "CANCELLED"
+          PY
+          cat > "$tmp/workflow.md" <<'MD'
+          ### Canonical board status mapping
+          - Backlog → `BACKLOG`
+          - Ready → `READY`
+          - In Progress → `IN_PROGRESS`
+          - In Review → `IN_REVIEW`
+          - Changes Requested → `CHANGES_REQUESTED`
+          - Approved — Awaiting Human Merge → `APPROVED_AWAITING_HUMAN_MERGE`
+          - Blocked → `BLOCKED`
+          - Done → `DONE`
+          Implementation-only task states: `CLAIMED`, `CANCELLED`.
+          MD
+          # Script parses enum declarations, not imports; provide the required import for valid fixture Python.
+          sed -i '1i from enum import Enum' "$tmp/impl/models/status.py"
+          python scripts/check_state_drift.py --impl-repo "$tmp/impl" --workflow "$tmp/workflow.md"
+          sed -i '/READY = "READY"/d' "$tmp/impl/models/status.py"
+          if python scripts/check_state_drift.py --impl-repo "$tmp/impl" --workflow "$tmp/workflow.md"; then
+            echo "ERROR: divergent fixture unexpectedly passed"
+            exit 1
+          else
+            echo "PASS: divergent fixture correctly failed"
+          fi
+          rm -rf "$tmp"
 
   protection-check:
     name: protection-check
