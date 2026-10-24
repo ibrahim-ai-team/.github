@@ -38,7 +38,7 @@ def parse_task_status_values(model_path: Path) -> set[str]:
 
 def documented_internal_only(workflow_path: Path) -> set[str]:
     text = workflow_path.read_text(encoding="utf-8")
-    match = re.search(r"Implementation-only task states:\\s*([^\\n]+)", text, re.I)
+    match = re.search(r"Implementation-only task states:\s*([^\n]+)", text, re.I)
     if not match:
         return set()
     return set(re.findall(r"`([A-Z_]+)`", match.group(1)))
