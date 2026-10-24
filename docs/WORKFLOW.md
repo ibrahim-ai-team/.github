@@ -29,7 +29,7 @@ The organization board uses the following eight display labels, mapped to the im
 - Blocked → `BLOCKED`
 - Done → `DONE`
 
-The implementation also defines `CLAIMED` and `CANCELLED` as implementation-only task states; they are intentionally not organization-board labels. Do not infer board status from issue titles, labels, or body text.
+Implementation-only task states: `CLAIMED`, `CANCELLED`. These are intentionally not organization-board labels. Do not infer board status from issue titles, labels, or body text.
 
 Readiness meanings: **Ready** means scope, acceptance criteria, priority, dependencies, and next action are clear. **In Progress** means work is active. **In Review** means a PR or deliverable awaits review. **Blocked** means the blocker and next action are recorded. **Done** requires accepted completion evidence and verified human merge, as defined in the implementation workflow.
 
