@@ -25,6 +25,18 @@ Thank you for helping improve the organization's repositories and AI-assisted en
 - Request only the permissions needed for a workflow, and pin third-party GitHub Actions to trusted versions or full commit SHAs according to repository policy.
 - Do not claim that a security control or runtime behavior is verified unless there is observable evidence.
 
+## Atomic task claiming
+
+The implementation repository uses Git refs under `refs/claims/*` as a test-and-set primitive: competing workers attempt to create the same task claim, and only one should acquire it. Do not reproduce or maintain the claim implementation in this repository; the implementation and payload contract live in [`scripts/claim_task.py`](https://github.com/ibrahim-ai-team/ai-software-team/blob/main/scripts/claim_task.py).
+
+Typical invocation from an `ai-software-team` checkout:
+
+```sh
+python scripts/claim_task.py --task-id TASK-123 --run-id run-456 --remote origin
+```
+
+Exit codes: `0` means acquired or already held by the same run; `1` means another run holds the claim; `2` means invalid task ID; `3` means a retryable remote/Git operation failed. `--dry-run` prints the payload and example ref update without acquiring the claim.
+
 ## Review readiness
 
 A pull request should include:
