@@ -1,6 +1,6 @@
 # Security Baseline and Verification Register
 
-**Last reviewed:** 2026-10-20  
+**Last reviewed:** 2026-10-24  
 **Purpose:** Track what is known versus what still requires an authenticated settings check. Documentation alone does not enable or prove a GitHub security control.
 
 ## Status vocabulary
@@ -22,7 +22,7 @@
 | `ibrahim-ai-team/ai-software-team` archived | VERIFIED | Connected repository listing reports false |
 | Repositories visible in connected organization listing | VERIFIED | Listing returned `.github` and `ai-software-team`; this is a point-in-time connected-account view, not proof that no other repositories exist |
 
-## Checks performed on 2026-10-18
+## Checks performed on 2026-10-20
 
 The 2026-10-20 inspection below supersedes the NOT VERIFIED results here for `.github` branch protection and rulesets.
 
@@ -49,36 +49,99 @@ Read with an admin-scoped integration token through the GitHub REST API. No sett
 | Code scanning default setup | NOT CONFIGURED | `GET /code-scanning/default-setup` → `state: not-configured`; the repository has no analyzable code today |
 | Private vulnerability reporting | NOT CONFIGURED | `GET /private-vulnerability-reporting` → `enabled: false` |
 | GitHub Actions permissions and allowed-actions policy | NOT VERIFIED | `GET /actions/permissions` was blocked for the reviewing integration (403) |
-| GitHub Actions workflows | VERIFIED | `GET /actions/workflows` → `total_count: 0`; no workflows exist, so action pinning does not apply yet |
+| GitHub Actions workflows | VERIFIED | `GET /actions/workflows` → `total_count: 0`; no workflows existed at inspection time |
 | Repository collaborators | VERIFIED | One collaborator, `IbrhimGhorafi`, with the `admin` role |
 
 ### Gaps and proposed actions
 
-Each item needs an organization owner decision in **Settings**; documentation does not change them. They are tracked in [#26](https://github.com/ibrahim-ai-team/.github/issues/26).
+These controls need action by an organization/repository owner. The prior issue [#26](https://github.com/ibrahim-ai-team/.github/issues/26) is closed, but the settings described here must not be considered fixed until the verification script passes.
 
-1. **Protect `main` with a ruleset.** Block force pushes and deletion, and require changes to go through a pull request. With a single admin, requiring an approving review would block every merge; either set required approvals to 0 or give the admin a bypass, until a second maintainer exists.
-2. **Enable secret scanning and push protection.** Both are free for public repositories.
-3. **Enable private vulnerability reporting.** [SECURITY.md](../SECURITY.md) names it as the first reporting route. Until it is enabled, reporters fall through to the second route (contacting the owner).
-4. **Enable Dependabot alerts**, and record their state once it can be read.
-5. **Revisit code scanning and Actions policy** when the repository first gains a workflow or code.
+1. **Protect `main`.** Apply [`.github/rulesets/main-protection.json`](../.github/rulesets/main-protection.json). It requires a pull request, one approval, CI checks, linear history, and blocks force-push/deletion. There is currently only one verified admin; one required approval can deadlock merges until a second reviewer/admin is added. If you cannot add one now, change the ruleset approval count to 0 temporarily and record that exception.
+2. **Enable secret scanning and push protection** using the exact steps below.
+3. **Enable private vulnerability reporting.** [SECURITY.md](../SECURITY.md) names it as the first reporting route. Until enabled, reporters fall through to the second route (contacting the owner).
+4. **Enable Dependabot alerts and security updates**, then verify both.
+5. Revisit code scanning and Actions policy when the repository gains analyzable code or additional workflows.
 
-## Controls still requiring direct verification
+## How to apply branch protection
 
-These remain **NOT VERIFIED** until settings or authoritative API responses are reviewed:
+### Option A — GitHub UI / ruleset import
 
-- Every security control for `ibrahim-ai-team/ai-software-team`. Its settings were not readable from the 2026-10-20 session, and its code-level controls are owned and documented in that repository.
-- Dependabot alerts and GitHub Actions policy for `ibrahim-ai-team/.github` (see above).
-- Organization-level defaults that apply to new repositories, and organization Actions policy.
+1. Open [the `.github` repository](https://github.com/ibrahim-ai-team/.github).
+2. Select **Settings → Rules → Rulesets**.
+3. Select **New ruleset → Import a ruleset** (the label may appear as **Import ruleset**).
+4. Select the file `.github/rulesets/main-protection.json` from the branch/checkout and upload/import it. If the UI does not accept a repository file directly, download that JSON file to your device first, then import the downloaded file.
+5. Confirm the target is branch `main` (condition `refs/heads/main`), enforcement is **Active**, pull requests are required, the listed CI status checks match the checks reported by the new workflow, force pushes and deletion are blocked, and linear history is enabled.
+6. **Before saving:** one approving review is configured. The inventory currently verifies only one admin. Add a second qualified reviewer/admin first, or change `required_approving_review_count` to `0` temporarily to avoid locking out the sole maintainer.
+7. Save the ruleset. Open **Settings → Rules → Rulesets** again and confirm the ruleset appears with **Active** enforcement.
+
+### Option B — GitHub CLI / REST API
+
+Run from a local checkout of this repository after installing and authenticating GitHub CLI:
+
+```sh
+gh auth status
+gh api --method POST repos/ibrahim-ai-team/.github/rulesets \
+  --input .github/rulesets/main-protection.json
+```
+
+The API call creates the ruleset; it does not import it into a different repository. Check the response for an ID and active enforcement, then run `scripts/verify_repo_hardening.sh`. If the endpoint returns 403, use an owner/admin account with repository administration permission. Do not put a token in the JSON file or command line.
+
+## How to enable secret scanning and push protection
+
+1. Open [`.github` Settings](https://github.com/ibrahim-ai-team/.github/settings/security_analysis).
+2. Select **Security → Code security** (or **Code security and analysis**).
+3. Under **Secret scanning**, select **Enable** and confirm.
+4. Under **Secret scanning push protection**, select **Enable** and confirm. If GitHub presents the two controls together, explicitly verify both show enabled after saving.
+5. Reopen the page and verify both controls remain enabled.
+6. Run `scripts/verify_repo_hardening.sh`; the **Secret scanning** and **Push protection** rows must say `PASS`.
+
+If a control is unavailable in the UI, do not mark it enabled. Record the exact UI/API error and the repository plan/visibility, then leave it **NOT AVAILABLE** with that reason.
+
+## How to enable Dependabot security updates
+
+1. Open [`.github` Settings → Code security](https://github.com/ibrahim-ai-team/.github/settings/security_analysis).
+2. Find **Dependabot alerts** and enable them first if disabled.
+3. Find **Dependabot security updates** and select **Enable**.
+4. Confirm the settings page reports enabled, then run `scripts/verify_repo_hardening.sh`.
+5. The committed `.github/dependabot.yml` configures weekly GitHub Actions dependency-version updates; it does **not** turn on the separate Dependabot security-updates setting.
+
+## Bus factor mitigation
+
+1. Confirm the person is a trusted maintainer and has an individual GitHub account with appropriate MFA and recovery.
+2. In the organization, open **Settings → People → Invite member** (or **People → Members**, then **Add member** depending on the current UI).
+3. Invite the person and select the **Owner** role only if they need organization-wide administrative authority. Review least privilege before sending the invitation.
+4. Have the invitee accept, then confirm the person appears under **Organization Settings → People** with role **Owner**.
+5. Update [`docs/REPOSITORY-INVENTORY.md`](REPOSITORY-INVENTORY.md) with the verified GitHub login and date. Until then, its secondary-admin field remains **NOT VERIFIED**.
+
+CLI alternative (run as an organization owner; replace `<user>` with the exact GitHub login):
+
+```sh
+gh api --method PUT orgs/ibrahim-ai-team/memberships/<user> -f role=admin
+gh api orgs/ibrahim-ai-team/memberships/<user> --jq '{state: .state, role: .role}'
+```
+
+This grants organization **admin/owner-level** membership; it is a high-impact action. Use it only after explicitly authorizing that exact user. The first command is not a substitute for the invite/acceptance workflow where required by organization policy.
+
+## Verification script
+
+Run from the repository root:
+
+```sh
+chmod +x scripts/verify_repo_hardening.sh
+scripts/verify_repo_hardening.sh
+```
+
+Each control prints `PASS` or `FAIL` and a `How to fix:` action. The script exits 1 if any control fails and exits 2 if `gh` is unavailable or unauthenticated. CI uses `--ci`, which prints an explicit warning and exits 0 if GitHub CLI/authentication is unavailable; settings failures with working authentication remain visible as failures.
 
 ## Verification procedure
 
 1. Open each repository's **Settings → Rules** (and branch protection settings where shown); inspect rules applying to `main`.
-2. Open **Settings → Security** / **Code security and analysis** and record the state of each available security feature.
+2. Open **Settings → Security → Code security** and record the state of each available security feature.
 3. Open **Settings → Actions → General** and record workflow permissions and action restrictions.
-4. Inspect recent pull requests and workflow runs to confirm that required checks actually run and are enforced.
-5. Record the repository, control, observed state, date, and evidence link in the relevant issue. Do not include secrets, tokens, private keys, or sensitive values in comments.
-6. If a control cannot be inspected with current permissions, keep it **NOT VERIFIED**; do not treat missing access as proof that the control is disabled.
+4. Inspect recent pull requests and workflow runs to confirm required checks actually run and are enforced.
+5. Record repository, control, observed state, date, and evidence link in the relevant issue. Never include secrets, tokens, private keys, or sensitive values in comments.
+6. If a control cannot be inspected with current permissions, keep it **NOT VERIFIED**; do not treat missing access as proof that it is disabled.
 
 ## Completion rule
 
-Issue #6 is complete only when the inventory is reviewed and each repository has a confirmed named owner or an explicit accepted ownership gap. Issue #7 is complete only after applicable controls have been inspected and gaps have owners/actions. Merging this document does not itself configure any security setting.
+Issue #6 is complete only when the inventory is reviewed and each repository has a confirmed named owner or an explicit accepted ownership gap. Issue #7 is complete only after applicable controls have been inspected and gaps have owners/actions. A merged document does not configure any setting.
