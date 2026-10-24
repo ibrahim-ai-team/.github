@@ -30,7 +30,7 @@ def parse_board_mapping(workflow_path: Path) -> dict[str, str]:
 
 def parse_task_status_values(model_path: Path) -> set[str]:
     text = model_path.read_text(encoding="utf-8")
-    match = re.search(r"^class TaskStatus\([^\n]+\):\s*(.*?)(?=^class |\Z)", text, re.M | re.S)
+    match = re.search(r"^class TaskStatus\([^\n]+\):[ \t]*(.*?)(?=^class |\Z)", text, re.M | re.S)
     if not match:
         raise ValueError(f"{model_path}: TaskStatus enum not found")
     return set(re.findall(r"^\s+[A-Z][A-Z0-9_]*\s*=\s*['\"]([A-Z_]+)['\"]", match.group(1), re.M))
