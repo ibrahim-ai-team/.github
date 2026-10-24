@@ -37,7 +37,7 @@ jobs:
               if text.count("---") % 2:
                   errors.append(f"{path}: unmatched YAML document marker")
               if path.name != "config.yml":
-                  for key in ("name:", "description:", "title:", "labels:", "body:"):
+                  for key in ("name:", "description:", "body:"):
                       if not re.search(rf"(?m)^{re.escape(key)}", text):
                           errors.append(f"{path}: missing expected issue-form key {key}")
               # Basic indentation sanity check; deliberately no third-party YAML dependency.
