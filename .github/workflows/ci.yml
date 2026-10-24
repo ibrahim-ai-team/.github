@@ -77,6 +77,30 @@ jobs:
           assert data["enforcement"] == "active"
           print("PASS: main-protection.json is valid JSON and contains expected rules")
           PY
+      - name: Validate Dependabot YAML structure (stdlib-only)
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path(".github/dependabot.yml")
+          text = path.read_text(encoding="utf-8")
+          required = (
+              "version: 2",
+              "updates:",
+              "package-ecosystem: github-actions",
+              "directory: /",
+              "interval: weekly",
+              "target-branch: main",
+          )
+          missing = [item for item in required if item not in text]
+          if missing:
+              raise SystemExit("Dependabot config missing required entries: " + ", ".join(missing))
+          if "\\t" in text:
+              raise SystemExit("Dependabot config contains tab indentation")
+          for number, line in enumerate(text.splitlines(), 1):
+              if line.strip() and line[:1].isspace() and (len(line) - len(line.lstrip())) % 2:
+                  raise SystemExit(f"Dependabot YAML indentation is not a multiple of two at line {number}")
+          print("PASS: Dependabot config has expected YAML structure")
+          PY
 
   markdown-lint:
     name: markdown-lint
