@@ -117,6 +117,32 @@ jobs:
               raise SystemExit(1)
           print("PASS: relative Markdown links in docs/*.md")
           PY
+      - name: Ensure board-state mapping is not duplicated
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          canonical = Path("docs/WORKFLOW.md")
+          mapping_lines = (
+              "- Backlog → `BACKLOG`",
+              "- Ready → `READY`",
+              "- In Progress → `IN_PROGRESS`",
+              "- In Review → `IN_REVIEW`",
+              "- Changes Requested → `CHANGES_REQUESTED`",
+              "- Approved — Awaiting Human Merge → `APPROVED_AWAITING_HUMAN_MERGE`",
+              "- Blocked → `BLOCKED`",
+              "- Done → `DONE`",
+          )
+          duplicates = []
+          for path in Path(".").rglob("*.md"):
+              if path == canonical or ".git" in path.parts:
+                  continue
+              text = path.read_text(encoding="utf-8")
+              if sum(line in text for line in mapping_lines) >= 2:
+                  duplicates.append(str(path))
+          if duplicates:
+              raise SystemExit("Board-state mapping duplicated outside docs/WORKFLOW.md: " + ", ".join(duplicates))
+          print("PASS: board-state mapping appears only in docs/WORKFLOW.md")
+          PY
       - name: Check cross-repository state mapping when implementation checkout exists
         run: |
           if [ -f ../ai-software-team/models/status.py ]; then
