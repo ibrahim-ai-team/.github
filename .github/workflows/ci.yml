@@ -94,7 +94,7 @@ jobs:
           missing = [item for item in required if item not in text]
           if missing:
               raise SystemExit("Dependabot config missing required entries: " + ", ".join(missing))
-          if "\\t" in text:
+          if "\t" in text:
               raise SystemExit("Dependabot config contains tab indentation")
           for number, line in enumerate(text.splitlines(), 1):
               if line.strip() and line[:1].isspace() and (len(line) - len(line.lstrip())) % 2:
