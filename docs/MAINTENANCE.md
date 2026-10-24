@@ -9,6 +9,7 @@
 - [ ] Verify repository settings when permissions allow; otherwise leave them explicitly NOT VERIFIED.
 - [ ] Check that the organization Project reflects real status and that closed work has evidence.
 - [ ] Link to the owning repository for implementation-specific agent, skill, CI, release, ADR, and handover maintenance.
+- [ ] Run `python scripts/check_state_drift.py --impl-repo ../ai-software-team` from a workspace where both repositories are siblings. Investigate any missing/extra state report; if the implementation checkout is absent, record the warning and rerun once available.
 - [ ] Record the review date, material risks, and follow-up issue links in an existing issue or Project item; avoid creating duplicate recurring issues.
 
 ## Evidence rules

@@ -1,6 +1,6 @@
 # Organization Repository Inventory
 
-**Last reviewed:** 2026-10-20  
+**Last reviewed:** 2026-10-24  
 **Scope:** Repositories returned by the connected GitHub account's organization-filtered repository listing.
 
 ## Catalog
@@ -12,7 +12,8 @@
 
 ## Known gaps
 
-- **`.github` repository description is wrong.** GitHub shows "AI-powered software engineering team: reusable agents, skills, automation, and Agile delivery workflows." That describes `ai-software-team` and contradicts this repository's boundary. Proposed description, which an admin changes in **Settings → General** (tracked in [#26](https://github.com/ibrahim-ai-team/.github/issues/26)): "Organization profile, shared issue/PR templates, and community-health and governance docs for Ibrahim AI Team."
+- **Repository description: ACTION REQUIRED (not yet corrected).** GitHub currently has the description "AI-powered software engineering team: reusable agents, skills, automation, and Agile delivery workflows." Change it in **Settings → General → Description** to: "Organization defaults, templates, and governance docs for Ibrahim AI Team — not the implementation repo." This is under 160 characters and clearly distinguishes this repository from `ai-software-team`. Tracked in [issue #26](https://github.com/ibrahim-ai-team/.github/issues/26); issue closure does not prove the setting changed. After changing it, verify with `gh api repos/ibrahim-ai-team/.github --jq .description`.
+- **Secondary admin: NOT VERIFIED — to fill after invite acceptance.** Secondary admin: <à remplir>. Record the verified GitHub login and verification date only after confirming the organization role in **Settings → People** or with `gh api orgs/ibrahim-ai-team/memberships/<user> --jq '{state: .state, role: .role}'`.
 - **Ownership:** the maintainer should either confirm the named owner for each repository or explicitly accept the gap.
 
 ## Maintenance

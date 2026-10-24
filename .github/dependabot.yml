@@ -1,0 +1,8 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    target-branch: main
+# Security updates must also be enabled in Settings → Code security; this file alone does not enable that repository setting.
