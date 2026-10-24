@@ -136,12 +136,15 @@ jobs:
           sed -i '1i from enum import Enum' "$tmp/impl/models/status.py"
           python scripts/check_state_drift.py --impl-repo "$tmp/impl" --workflow "$tmp/workflow.md"
           sed -i '/READY = "READY"/d' "$tmp/impl/models/status.py"
-          if python scripts/check_state_drift.py --impl-repo "$tmp/impl" --workflow "$tmp/workflow.md"; then
-            echo "ERROR: divergent fixture unexpectedly passed"
+          set +e
+          python scripts/check_state_drift.py --impl-repo "$tmp/impl" --workflow "$tmp/workflow.md"
+          result=$?
+          set -e
+          if [ "$result" -ne 1 ]; then
+            echo "ERROR: divergent fixture should return exit 1, got $result"
             exit 1
-          else
-            echo "PASS: divergent fixture correctly failed"
           fi
+          echo "PASS: divergent fixture correctly returned exit 1"
           rm -rf "$tmp"
 
   protection-check:
