@@ -127,7 +127,11 @@ jobs:
           import sys
           root = Path(".").resolve()
           errors = []
-          for doc in sorted(Path("docs").glob("*.md")):
+          markdown_files = set(Path(".").glob("*.md"))
+          markdown_files.update(Path("docs").glob("*.md"))
+          markdown_files.update(Path("profile").glob("*.md"))
+          markdown_files.update(Path(".github").glob("*.md"))
+          for doc in sorted(markdown_files):
               text = doc.read_text(encoding="utf-8")
               for target in re.findall(r"(?<!!)\[[^\]]*\]\(([^)]+)\)", text):
                   target = target.strip().split("#", 1)[0]
@@ -139,7 +143,7 @@ jobs:
           if errors:
               print("\n".join(errors), file=sys.stderr)
               raise SystemExit(1)
-          print("PASS: relative Markdown links in docs/*.md")
+          print("PASS: relative Markdown links in repository-root, docs/, profile/, and .github/ Markdown files")
           PY
       - name: Ensure board-state mapping is not duplicated
         run: |
