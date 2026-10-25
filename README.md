@@ -28,7 +28,7 @@ It is **not** the implementation repository for the AI development team. Reusabl
 
 Issue → scope and acceptance criteria → focused branch → pull request with validation evidence → human review → merge only after explicit approval → close the issue with evidence.
 
-The organization backlog should be reviewed monthly and before sprint planning. Use the existing [maintenance checklist](docs/MAINTENANCE.md) rather than creating duplicate recurring issues. See [Organization Work and Delivery](docs/WORKFLOW.md) for status definitions and repository boundaries.
+Follow the [maintenance checklist](docs/MAINTENANCE.md) for the organization review cadence. See [Organization Work and Delivery](docs/WORKFLOW.md) for status definitions and repository boundaries.
 
 ## Contributing
 
