@@ -3,6 +3,16 @@
 **Last reviewed:** 2026-10-24  
 **Scope:** Repositories returned by the connected GitHub account's organization-filtered repository listing.
 
+## Enumeration and verification
+
+Enumerate repositories visible to the authenticated GitHub CLI account with:
+
+```sh
+gh repo list ibrahim-ai-team --limit 200
+```
+
+**Last verified via:** Not yet established by this edit. Record the actual command, date, and authenticated account context after running it. This command lists repositories visible to the current account; it is not proof that no inaccessible private repositories exist.
+
 ## Catalog
 
 | Repository | Purpose | Visibility | Default branch | Archived | License | Ownership |

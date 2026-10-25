@@ -127,7 +127,11 @@ jobs:
           import sys
           root = Path(".").resolve()
           errors = []
-          for doc in sorted(Path("docs").glob("*.md")):
+          markdown_files = set(Path(".").glob("*.md"))
+          markdown_files.update(Path("docs").glob("*.md"))
+          markdown_files.update(Path("profile").glob("*.md"))
+          markdown_files.update(Path(".github").glob("*.md"))
+          for doc in sorted(markdown_files):
               text = doc.read_text(encoding="utf-8")
               for target in re.findall(r"(?<!!)\[[^\]]*\]\(([^)]+)\)", text):
                   target = target.strip().split("#", 1)[0]
@@ -139,7 +143,7 @@ jobs:
           if errors:
               print("\n".join(errors), file=sys.stderr)
               raise SystemExit(1)
-          print("PASS: relative Markdown links in docs/*.md")
+          print("PASS: relative Markdown links in repository-root, docs/, profile/, and .github/ Markdown files")
           PY
       - name: Ensure board-state mapping is not duplicated
         run: |
@@ -217,6 +221,43 @@ jobs:
             exit 1
           fi
           echo "PASS: divergent fixture correctly returned exit 1"
+          # Negative fixture A: reordered Markdown table is not the canonical mapping.
+          cat > "$tmp/workflow-reordered.md" <<'MD'
+          ### Canonical board status mapping
+
+          | Enum value | Display label |
+          | --- | --- |
+          | `BACKLOG` | Backlog |
+          | `READY` | Ready |
+          MD
+          set +e
+          python scripts/check_state_drift.py --impl-repo "$tmp/impl" --workflow "$tmp/workflow-reordered.md" >"$tmp/reordered.out" 2>&1
+          result=$?
+          set -e
+          if [ "$result" -ne 2 ] || ! grep -q "expected heading" "$tmp/reordered.out"; then
+            echo "ERROR: reordered-table fixture should return parse error 2"
+            cat "$tmp/reordered.out"
+            exit 1
+          fi
+          echo "PASS: reordered-table fixture correctly rejected"
+
+          # Negative fixture B: auto() and inline comments are unsupported.
+          cat > "$tmp/impl/models/status.py" <<'PY'
+          from enum import Enum, auto
+
+          class TaskStatus(str, Enum):
+              BACKLOG = auto()  # generated value
+          PY
+          set +e
+          python scripts/check_state_drift.py --impl-repo "$tmp/impl" --workflow "$tmp/workflow.md" >"$tmp/enum-invalid.out" 2>&1
+          result=$?
+          set -e
+          if [ "$result" -ne 2 ] || ! grep -q "Inline comments and auto()" "$tmp/enum-invalid.out"; then
+            echo "ERROR: unsupported-enum fixture should return parse error 2"
+            cat "$tmp/enum-invalid.out"
+            exit 1
+          fi
+          echo "PASS: unsupported-enum fixture correctly rejected"
           rm -rf "$tmp"
 
   protection-check:
@@ -237,4 +278,19 @@ jobs:
           fi
           git checkout --detach FETCH_HEAD
       - name: Verify live repository hardening (warning-only without authenticated gh)
-        run: scripts/verify_repo_hardening.sh --ci
+        run: |
+          set +e
+          output="$(scripts/verify_repo_hardening.sh --ci 2>&1)"
+          result=$?
+          printf '%s\n' "$output"
+          {
+            echo "### Live security controls"
+            if printf '%s\n' "$output" | grep -q '^RESULT: SKIPPED'; then
+              echo "LIVE SECURITY CONTROLS NOT VERIFIED IN THIS RUN"
+            elif [ "$result" -eq 0 ]; then
+              echo "Live security controls verification completed; see the script output above."
+            else
+              echo "Live security controls verification failed; see the script output above."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$result"
