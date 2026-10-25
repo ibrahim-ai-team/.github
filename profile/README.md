@@ -26,5 +26,7 @@ The focus is establishing and validating the shared agent and skills foundation 
 - Use issues, branches, pull requests, and observable validation evidence.
 - Distinguish VERIFIED, NOT VERIFIED, and NOT CONFIGURED claims explicitly; documentation alone is not proof of an active control.
 - Current repository security-control status: see the [Security Baseline](https://github.com/ibrahim-ai-team/.github/blob/main/docs/SECURITY-BASELINE.md); recorded observations may be stale and require authenticated verification.
+- Distinguish VERIFIED, NOT VERIFIED, and NOT CONFIGURED claims explicitly; documentation alone is not proof of an active control.
+- Current repository security-control status: see the [Security Baseline](https://github.com/ibrahim-ai-team/.github/blob/main/docs/SECURITY-BASELINE.md); recorded observations may be stale and require authenticated verification.
 - Protect credentials and secrets.
 - Human approval remains required for consequential changes.
