@@ -14,7 +14,7 @@ Thank you for helping improve the organization's repositories and AI-assisted en
 - Keep each pull request small and related to one issue or coherent change.
 - Describe the motivation, important changes, validation performed, risks, and any follow-up work.
 - Link the relevant issue using `Closes #123` only when the pull request fully resolves that issue.
-- Human maintainers retain final merge authority. Do not assume approval or merge permission from automated checks alone.
+- Require explicit human approval before merge; automated checks do not replace human review. See the [organization delivery workflow](docs/WORKFLOW.md).
 - Never force-push shared branches or bypass required review/checks.
 
 ## Quality and security
@@ -35,7 +35,7 @@ Typical invocation from an `ai-software-team` checkout:
 python scripts/claim_task.py --task-id TASK-123 --run-id run-456 --remote origin
 ```
 
-Exit codes: `0` means acquired or already held by the same run; `1` means another run holds the claim; `2` means invalid task ID; `3` means a retryable remote/Git operation failed. `--dry-run` prints the payload and example ref update without acquiring the claim.
+For authoritative behavior, exit codes, retry semantics, and `--dry-run` behavior, consult the [AI Software Team repository](https://github.com/ibrahim-ai-team/ai-software-team). Do not duplicate implementation-specific exit-code contracts here.
 
 ## Review readiness
 
