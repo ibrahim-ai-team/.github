@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Exit codes: 0 = PASS or intentional CI SKIPPED; 1 = live controls failed;
+# 2 = local prerequisites unavailable or unauthenticated. SKIPPED means live
+# controls were not verified, not that they passed.
 set -u
 
 REPO="${REPO:-ibrahim-ai-team/.github}"
@@ -9,9 +12,11 @@ warn_ci_or_exit() {
   local message="$1"
   if [[ "$CI_MODE" -eq 1 ]]; then
     printf 'WARN: %s; skipping live settings checks in CI mode.\n' "$message"
+    printf 'RESULT: SKIPPED — live controls NOT verified (reason: %s)\n' "$message"
     exit 0
   fi
   printf 'ERROR: %s\n' "$message" >&2
+  printf 'RESULT: SKIPPED (reason: %s)\n' "$message"
   exit 2
 }
 
