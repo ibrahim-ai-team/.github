@@ -1,6 +1,8 @@
 name: Feature
 description: Propose a capability or meaningful improvement.
 labels: ["enhancement"]
+# Native GitHub Issue Type requires plan support and organization configuration.
+# If unsupported, use the existing enhancement label as the fallback; verify live support before changing this field.
 type: Feature
 body:
   - type: markdown
