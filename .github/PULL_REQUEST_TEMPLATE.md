@@ -19,6 +19,7 @@ Closes #
 - [ ] Rollback or recovery notes are included when relevant.
 - [ ] No credentials, tokens, or private data are committed.
 - [ ] I have not included secrets, credentials, or production data.
+- [ ] I have not included secrets, credentials, or production data.
 
 ## Risks and rollback
 <!-- Known risks and how to revert or recover. -->
