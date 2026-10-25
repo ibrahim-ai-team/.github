@@ -2,6 +2,8 @@
 
 **Cadence:** monthly and briefly before sprint planning. **Timebox:** about 30 minutes; create focused follow-up issues rather than expanding the review indefinitely.
 
+This document is the single source of truth for organization-level review cadence; other organization documents should link here rather than restating the schedule.
+
 - [ ] Review organization-level issues for duplicates, stale scope, missing acceptance criteria, blockers, and next actions.
 - [ ] Confirm repository inventory, purpose, visibility, default branch, and named owner where known.
 - [ ] Check profile and contribution, support, and security links.
