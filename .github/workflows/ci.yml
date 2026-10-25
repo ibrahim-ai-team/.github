@@ -241,4 +241,19 @@ jobs:
           fi
           git checkout --detach FETCH_HEAD
       - name: Verify live repository hardening (warning-only without authenticated gh)
-        run: scripts/verify_repo_hardening.sh --ci
+        run: |
+          set +e
+          output="$(scripts/verify_repo_hardening.sh --ci 2>&1)"
+          result=$?
+          printf '%s\n' "$output"
+          {
+            echo "### Live security controls"
+            if printf '%s\n' "$output" | grep -q '^RESULT: SKIPPED'; then
+              echo "LIVE SECURITY CONTROLS NOT VERIFIED IN THIS RUN"
+            elif [ "$result" -eq 0 ]; then
+              echo "Live security controls verification completed; see the script output above."
+            else
+              echo "Live security controls verification failed; see the script output above."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$result"
