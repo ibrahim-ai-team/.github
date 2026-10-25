@@ -221,6 +221,43 @@ jobs:
             exit 1
           fi
           echo "PASS: divergent fixture correctly returned exit 1"
+          # Negative fixture A: reordered Markdown table is not the canonical mapping.
+          cat > "$tmp/workflow-reordered.md" <<'MD'
+          ### Canonical board status mapping
+
+          | Enum value | Display label |
+          | --- | --- |
+          | `BACKLOG` | Backlog |
+          | `READY` | Ready |
+          MD
+          set +e
+          python scripts/check_state_drift.py --impl-repo "$tmp/impl" --workflow "$tmp/workflow-reordered.md" >"$tmp/reordered.out" 2>&1
+          result=$?
+          set -e
+          if [ "$result" -ne 2 ] || ! grep -q "expected heading" "$tmp/reordered.out"; then
+            echo "ERROR: reordered-table fixture should return parse error 2"
+            cat "$tmp/reordered.out"
+            exit 1
+          fi
+          echo "PASS: reordered-table fixture correctly rejected"
+
+          # Negative fixture B: auto() and inline comments are unsupported.
+          cat > "$tmp/impl/models/status.py" <<'PY'
+          from enum import Enum, auto
+
+          class TaskStatus(str, Enum):
+              BACKLOG = auto()  # generated value
+          PY
+          set +e
+          python scripts/check_state_drift.py --impl-repo "$tmp/impl" --workflow "$tmp/workflow.md" >"$tmp/enum-invalid.out" 2>&1
+          result=$?
+          set -e
+          if [ "$result" -ne 2 ] || ! grep -q "Inline comments and auto()" "$tmp/enum-invalid.out"; then
+            echo "ERROR: unsupported-enum fixture should return parse error 2"
+            cat "$tmp/enum-invalid.out"
+            exit 1
+          fi
+          echo "PASS: unsupported-enum fixture correctly rejected"
           rm -rf "$tmp"
 
   protection-check:
