@@ -4,10 +4,14 @@ on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    - cron: "17 6 * * 1"  # weekly: catch drift introduced by ai-software-team changes
 
 permissions:
   contents: read
 
+# Job names are required status-check contexts in .github/rulesets/main-protection.json.
+# Checkout uses built-in Git to avoid third-party action dependencies.
 jobs:
   yaml-lint:
     name: yaml-lint
@@ -16,249 +20,48 @@ jobs:
     steps:
       - name: Checkout source with built-in Git
         env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REF: ${{ github.event_name == 'pull_request' && format('refs/pull/{0}/merge', github.event.pull_request.number) || github.sha }}
         run: |
-          git init .
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
-            git fetch --no-tags --depth=1 origin "refs/pull/${PR_NUMBER}/merge"
-          else
-            git fetch --no-tags --depth=1 origin "${GITHUB_SHA}"
-          fi
-          git checkout --detach FETCH_HEAD
-      - name: Validate issue form YAML structure (stdlib-only)
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import re
-          import sys
-
-          files = sorted(Path(".github/ISSUE_TEMPLATE").glob("*.yml"))
-          if not files:
-              print("No issue-template YAML files found.")
-              raise SystemExit(0)
-          errors = []
-          for path in files:
-              text = path.read_text(encoding="utf-8")
-              if not text.strip():
-                  errors.append(f"{path}: empty file")
-                  continue
-              if "\t" in text:
-                  errors.append(f"{path}: tab character found; YAML indentation must use spaces")
-              if text.count("---") % 2:
-                  errors.append(f"{path}: unmatched YAML document marker")
-              if path.name != "config.yml":
-                  for key in ("name:", "description:", "body:"):
-                      if not re.search(rf"(?m)^{re.escape(key)}", text):
-                          errors.append(f"{path}: missing expected issue-form key {key}")
-              # Basic indentation sanity check; deliberately no third-party YAML dependency.
-              for number, line in enumerate(text.splitlines(), 1):
-                  if line.strip() and line.lstrip().startswith("-") and line[:1].isspace():
-                      indent = len(line) - len(line.lstrip())
-                      if indent % 2:
-                          errors.append(f"{path}:{number}: list indentation is not a multiple of two")
-          if errors:
-              print("\n".join(errors), file=sys.stderr)
-              raise SystemExit(1)
-          print(f"PASS: basic YAML structure checks for {len(files)} issue-template files")
-          PY
-      - name: Validate branch ruleset JSON
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          path = Path(".github/rulesets/main-protection.json")
-          data = json.loads(path.read_text(encoding="utf-8"))
-          assert data["target"] == "branch"
-          assert data["conditions"]["ref_name"]["include"] == ["refs/heads/main"]
-          rule_types = {rule["type"] for rule in data["rules"]}
-          required = {"pull_request", "required_status_checks", "non_fast_forward", "deletion", "required_linear_history"}
-          assert required <= rule_types, f"missing rules: {sorted(required - rule_types)}"
-          assert data["enforcement"] == "active"
-          print("PASS: main-protection.json is valid JSON and contains expected rules")
-          PY
-      - name: Validate Dependabot YAML structure (stdlib-only)
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          path = Path(".github/dependabot.yml")
-          text = path.read_text(encoding="utf-8")
-          required = (
-              "version: 2",
-              "updates:",
-              "package-ecosystem: github-actions",
-              "directory: /",
-              "interval: weekly",
-              "target-branch: main",
-          )
-          missing = [item for item in required if item not in text]
-          if missing:
-              raise SystemExit("Dependabot config missing required entries: " + ", ".join(missing))
-          if "\t" in text:
-              raise SystemExit("Dependabot config contains tab indentation")
-          for number, line in enumerate(text.splitlines(), 1):
-              if line.strip() and line[:1].isspace() and (len(line) - len(line.lstrip())) % 2:
-                  raise SystemExit(f"Dependabot YAML indentation is not a multiple of two at line {number}")
-          print("PASS: Dependabot config has expected YAML structure")
-          PY
+          git init -q .
+          git fetch --no-tags --depth=1 "https://github.com/${GITHUB_REPOSITORY}.git" "$REF"
+          git checkout -q --detach FETCH_HEAD
+      - name: Validate issue forms, ruleset, and Dependabot config
+        run: python scripts/validate_repo.py yaml
 
   markdown-lint:
     name: markdown-lint
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 3
     steps:
       - name: Checkout source with built-in Git
         env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REF: ${{ github.event_name == 'pull_request' && format('refs/pull/{0}/merge', github.event.pull_request.number) || github.sha }}
         run: |
-          git init .
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
-            git fetch --no-tags --depth=1 origin "refs/pull/${PR_NUMBER}/merge"
-          else
-            git fetch --no-tags --depth=1 origin "${GITHUB_SHA}"
-          fi
-          git checkout --detach FETCH_HEAD
-      - name: Check relative Markdown links
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import re
-          import sys
-          root = Path(".").resolve()
-          errors = []
-          markdown_files = set(Path(".").glob("*.md"))
-          markdown_files.update(Path("docs").glob("*.md"))
-          markdown_files.update(Path("profile").glob("*.md"))
-          markdown_files.update(Path(".github").glob("*.md"))
-          for doc in sorted(markdown_files):
-              text = doc.read_text(encoding="utf-8")
-              for target in re.findall(r"(?<!!)\[[^\]]*\]\(([^)]+)\)", text):
-                  target = target.strip().split("#", 1)[0]
-                  if not target or re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*:", target) or target.startswith("//"):
-                      continue
-                  candidate = (doc.parent / target).resolve()
-                  if not candidate.exists():
-                      errors.append(f"{doc}: broken relative link: {target}")
-          if errors:
-              print("\n".join(errors), file=sys.stderr)
-              raise SystemExit(1)
-          print("PASS: relative Markdown links in repository-root, docs/, profile/, and .github/ Markdown files")
-          PY
-      - name: Ensure board-state mapping is not duplicated
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          canonical = Path("docs/WORKFLOW.md")
-          mapping_lines = (
-              "- Backlog → `BACKLOG`",
-              "- Ready → `READY`",
-              "- In Progress → `IN_PROGRESS`",
-              "- In Review → `IN_REVIEW`",
-              "- Changes Requested → `CHANGES_REQUESTED`",
-              "- Approved — Awaiting Human Merge → `APPROVED_AWAITING_HUMAN_MERGE`",
-              "- Blocked → `BLOCKED`",
-              "- Done → `DONE`",
-          )
-          duplicates = []
-          for path in Path(".").rglob("*.md"):
-              if path == canonical or ".git" in path.parts:
-                  continue
-              text = path.read_text(encoding="utf-8")
-              if sum(line in text for line in mapping_lines) >= 2:
-                  duplicates.append(str(path))
-          if duplicates:
-              raise SystemExit("Board-state mapping duplicated outside docs/WORKFLOW.md: " + ", ".join(duplicates))
-          print("PASS: board-state mapping appears only in docs/WORKFLOW.md")
-          PY
-      - name: Check cross-repository state mapping when implementation checkout exists
-        run: |
-          if [ -f ../ai-software-team/models/status.py ]; then
-            python scripts/check_state_drift.py --impl-repo ../ai-software-team
-          else
-            echo "WARN: ../ai-software-team checkout absent; cross-repo state drift check skipped."
-          fi
-      - name: Unit-test state drift checker with aligned and divergent fixtures
-        run: |
-          set -eu
-          tmp="$(mktemp -d)"
-          mkdir -p "$tmp/impl/models"
-          cat > "$tmp/impl/models/status.py" <<'PY'
-          class TaskStatus(str, Enum):
-              BACKLOG = "BACKLOG"
-              READY = "READY"
-              IN_PROGRESS = "IN_PROGRESS"
-              IN_REVIEW = "IN_REVIEW"
-              CHANGES_REQUESTED = "CHANGES_REQUESTED"
-              APPROVED_AWAITING_HUMAN_MERGE = "APPROVED_AWAITING_HUMAN_MERGE"
-              BLOCKED = "BLOCKED"
-              DONE = "DONE"
-              CLAIMED = "CLAIMED"
-              CANCELLED = "CANCELLED"
-          PY
-          cat > "$tmp/workflow.md" <<'MD'
-          ### Canonical board status mapping
-          - Backlog → `BACKLOG`
-          - Ready → `READY`
-          - In Progress → `IN_PROGRESS`
-          - In Review → `IN_REVIEW`
-          - Changes Requested → `CHANGES_REQUESTED`
-          - Approved — Awaiting Human Merge → `APPROVED_AWAITING_HUMAN_MERGE`
-          - Blocked → `BLOCKED`
-          - Done → `DONE`
-          Implementation-only task states: `CLAIMED`, `CANCELLED`.
-          MD
-          # Script parses enum declarations, not imports; provide the required import for valid fixture Python.
-          sed -i '1i from enum import Enum' "$tmp/impl/models/status.py"
-          python scripts/check_state_drift.py --impl-repo "$tmp/impl" --workflow "$tmp/workflow.md"
-          sed -i '/READY = "READY"/d' "$tmp/impl/models/status.py"
-          set +e
-          python scripts/check_state_drift.py --impl-repo "$tmp/impl" --workflow "$tmp/workflow.md"
-          result=$?
-          set -e
-          if [ "$result" -ne 1 ]; then
-            echo "ERROR: divergent fixture should return exit 1, got $result"
-            exit 1
-          fi
-          echo "PASS: divergent fixture correctly returned exit 1"
-          # Negative fixture A: reordered Markdown table is not the canonical mapping.
-          cat > "$tmp/workflow-reordered.md" <<'MD'
-          ### Canonical board status mapping
+          git init -q .
+          git fetch --no-tags --depth=1 "https://github.com/${GITHUB_REPOSITORY}.git" "$REF"
+          git checkout -q --detach FETCH_HEAD
+      - name: Check Markdown links and board-mapping duplication
+        run: python scripts/validate_repo.py markdown
+      - name: Unit-test governance scripts
+        run: python -m unittest discover -s tests -v
 
-          | Enum value | Display label |
-          | --- | --- |
-          | `BACKLOG` | Backlog |
-          | `READY` | Ready |
-          MD
-          set +e
-          python scripts/check_state_drift.py --impl-repo "$tmp/impl" --workflow "$tmp/workflow-reordered.md" >"$tmp/reordered.out" 2>&1
-          result=$?
-          set -e
-          if [ "$result" -ne 2 ] || ! grep -q "expected heading" "$tmp/reordered.out"; then
-            echo "ERROR: reordered-table fixture should return parse error 2"
-            cat "$tmp/reordered.out"
-            exit 1
-          fi
-          echo "PASS: reordered-table fixture correctly rejected"
-
-          # Negative fixture B: auto() and inline comments are unsupported.
-          cat > "$tmp/impl/models/status.py" <<'PY'
-          from enum import Enum, auto
-
-          class TaskStatus(str, Enum):
-              BACKLOG = auto()  # generated value
-          PY
-          set +e
-          python scripts/check_state_drift.py --impl-repo "$tmp/impl" --workflow "$tmp/workflow.md" >"$tmp/enum-invalid.out" 2>&1
-          result=$?
-          set -e
-          if [ "$result" -ne 2 ] || ! grep -q "Inline comments and auto()" "$tmp/enum-invalid.out"; then
-            echo "ERROR: unsupported-enum fixture should return parse error 2"
-            cat "$tmp/enum-invalid.out"
-            exit 1
-          fi
-          echo "PASS: unsupported-enum fixture correctly rejected"
-          rm -rf "$tmp"
+  # Not a required check: drift can come from another repository, so it must not block unrelated PRs.
+  state-drift:
+    name: state-drift
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout source with built-in Git
+        env:
+          REF: ${{ github.event_name == 'pull_request' && format('refs/pull/{0}/merge', github.event.pull_request.number) || github.sha }}
+        run: |
+          git init -q .
+          git fetch --no-tags --depth=1 "https://github.com/${GITHUB_REPOSITORY}.git" "$REF"
+          git checkout -q --detach FETCH_HEAD
+      - name: Check board mapping against ai-software-team TaskStatus
+        run: |
+          git clone -q --depth=1 https://github.com/ibrahim-ai-team/ai-software-team.git ../ai-software-team
+          python scripts/check_state_drift.py --impl-repo ../ai-software-team
 
   protection-check:
     name: protection-check
@@ -267,30 +70,12 @@ jobs:
     steps:
       - name: Checkout source with built-in Git
         env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REF: ${{ github.event_name == 'pull_request' && format('refs/pull/{0}/merge', github.event.pull_request.number) || github.sha }}
         run: |
-          git init .
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
-            git fetch --no-tags --depth=1 origin "refs/pull/${PR_NUMBER}/merge"
-          else
-            git fetch --no-tags --depth=1 origin "${GITHUB_SHA}"
-          fi
-          git checkout --detach FETCH_HEAD
-      - name: Verify live repository hardening (warning-only without authenticated gh)
-        run: |
-          set +e
-          output="$(scripts/verify_repo_hardening.sh --ci 2>&1)"
-          result=$?
-          printf '%s\n' "$output"
-          {
-            echo "### Live security controls"
-            if printf '%s\n' "$output" | grep -q '^RESULT: SKIPPED'; then
-              echo "LIVE SECURITY CONTROLS NOT VERIFIED IN THIS RUN"
-            elif [ "$result" -eq 0 ]; then
-              echo "Live security controls verification completed; see the script output above."
-            else
-              echo "Live security controls verification failed; see the script output above."
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
-          exit "$result"
+          git init -q .
+          git fetch --no-tags --depth=1 "https://github.com/${GITHUB_REPOSITORY}.git" "$REF"
+          git checkout -q --detach FETCH_HEAD
+      - name: Verify branch rules (warnings only; admin-only settings are checked locally)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: scripts/verify_repo_hardening.sh --ci

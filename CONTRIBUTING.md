@@ -25,25 +25,20 @@ Thank you for helping improve the organization's repositories and AI-assisted en
 - Request only the permissions needed for a workflow, and pin third-party GitHub Actions to trusted versions or full commit SHAs according to repository policy.
 - Do not claim that a security control or runtime behavior is verified unless there is observable evidence.
 
-## Atomic task claiming
+## Local checks
 
-The implementation repository uses Git refs under `refs/claims/*` as a test-and-set primitive: competing workers attempt to create the same task claim, and only one should acquire it. Do not reproduce or maintain the claim implementation in this repository; the implementation and payload contract live in [`scripts/claim_task.py`](https://github.com/ibrahim-ai-team/ai-software-team/blob/main/scripts/claim_task.py).
-
-Typical invocation from an `ai-software-team` checkout:
+Run these from the repository root before opening a pull request:
 
 ```sh
-python scripts/claim_task.py --task-id TASK-123 --run-id run-456 --remote origin
+python scripts/validate_repo.py
+python -m unittest discover -s tests
+python scripts/check_state_drift.py --impl-repo ../ai-software-team  # needs a sibling checkout
 ```
-
-For authoritative behavior, exit codes, retry semantics, and `--dry-run` behavior, consult the [AI Software Team repository](https://github.com/ibrahim-ai-team/ai-software-team). Do not duplicate implementation-specific exit-code contracts here.
 
 ## Review readiness
 
-A pull request should include:
-- [ ] A clear problem statement and bounded scope.
-- [ ] A link to the related issue, when applicable.
-- [ ] Tests or checks run, with results.
-- [ ] Documentation updates or a note explaining why none are needed.
-- [ ] Security, compatibility, and migration considerations where relevant.
+Fill in every section of the [pull request template](.github/PULL_REQUEST_TEMPLATE.md). If a change is blocked, explain the missing decision or evidence rather than guessing.
 
-Be respectful, specific, and constructive in discussions. If a change is blocked, explain the missing decision or evidence rather than guessing.
+Task-claiming and other agent runtime procedures are documented in [ai-software-team](https://github.com/ibrahim-ai-team/ai-software-team); they are intentionally not copied here.
+
+Be respectful, specific, and constructive in discussions.

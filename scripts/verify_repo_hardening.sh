@@ -30,6 +30,11 @@ fi
 failures=0
 pass() { printf 'PASS: %s\n' "$1"; }
 fail() {
+  if [[ "$CI_MODE" -eq 1 ]]; then
+    # Warn instead of failing: this is a required check, and failing it before protection exists would deadlock setup.
+    printf '::warning title=%s::How to fix: %s\n' "$1" "$2"
+    return
+  fi
   printf 'FAIL: %s\n' "$1"
   printf '  How to fix: %s\n' "$2"
   failures=$((failures + 1))
@@ -50,14 +55,25 @@ else
   fail "main force-push/deletion restrictions" "Settings → Rules → Rulesets: enable Block force pushes and Restrict deletions (rule types non_fast_forward and deletion)."
 fi
 
-security="$(gh api "repos/$REPO" --jq '.security_and_analysis.secret_scanning.status // "disabled"' 2>/dev/null)" || security="api-error"
+if [[ "$CI_MODE" -eq 1 ]]; then
+  printf 'SKIP: security settings and private vulnerability reporting need an admin token; run this script locally.\n'
+  printf 'RESULT: branch-rule checks complete (CI mode reports gaps as warnings)\n'
+  exit 0
+fi
+
+# One request; each field falls back to "disabled" when absent or "api-error" if the call failed.
+analysis="$(gh api "repos/$REPO" --jq '.security_and_analysis // {} | [
+  .secret_scanning.status // "disabled",
+  .secret_scanning_push_protection.status // "disabled",
+  .dependabot_security_updates.status // "disabled"] | @tsv' 2>/dev/null)" || analysis=$'api-error\tapi-error\tapi-error'
+IFS=$'\t' read -r security push_protection dependabot <<<"$analysis"
+
 if [[ "$security" == "enabled" ]]; then pass "secret scanning"; else fail "secret scanning (current: $security)" "Settings → Security → Code security: enable Secret scanning."; fi
-
-push_protection="$(gh api "repos/$REPO" --jq '.security_and_analysis.secret_scanning_push_protection.status // "disabled"' 2>/dev/null)" || push_protection="api-error"
 if [[ "$push_protection" == "enabled" ]]; then pass "secret scanning push protection"; else fail "secret scanning push protection (current: $push_protection)" "Settings → Security → Code security: enable Secret scanning push protection."; fi
-
-dependabot="$(gh api "repos/$REPO" --jq '.security_and_analysis.dependabot_security_updates.status // "disabled"' 2>/dev/null)" || dependabot="api-error"
 if [[ "$dependabot" == "enabled" ]]; then pass "Dependabot security updates"; else fail "Dependabot security updates (current: $dependabot)" "Settings → Security → Code security: enable Dependabot security updates. .github/dependabot.yml configures version updates only."; fi
+
+pvr="$(gh api "repos/$REPO/private-vulnerability-reporting" --jq '.enabled' 2>/dev/null)" || pvr="api-error"
+if [[ "$pvr" == "true" ]]; then pass "private vulnerability reporting"; else fail "private vulnerability reporting (current: $pvr)" "Settings → Security → Code security: enable Private vulnerability reporting (SECURITY.md names it as the first reporting route)."; fi
 
 if [[ "$failures" -gt 0 ]]; then
   printf 'RESULT: FAIL (%s control(s) failed)\n' "$failures"

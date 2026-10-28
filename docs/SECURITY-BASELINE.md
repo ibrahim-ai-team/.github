@@ -24,35 +24,25 @@
 | `ibrahim-ai-team/ai-software-team` archived | VERIFIED | Connected repository listing reports false |
 | Repositories visible in connected organization listing | VERIFIED | Listing returned `.github` and `ai-software-team`; this is a point-in-time connected-account view, not proof that no other repositories exist |
 
-## Checks performed on 2026-10-20
-
-The 2026-10-20 inspection below supersedes the NOT VERIFIED results here for `.github` branch protection and rulesets.
-
-- A read of the repository rulesets endpoint returned an empty list in the connected view. This does **not** prove that no inherited organization rules or other enforcement mechanisms apply.
-- The branch-protection endpoint for `main` returned HTTP 403 (Resource not accessible by integration). Branch protection, required reviews, required checks, and force-push/deletion restrictions therefore remain **NOT VERIFIED**.
-- The available repository tree contains no local GitHub Actions workflow files. This does not verify organization-wide Actions policy or settings.
-- No credentials or obvious secrets were identified during the limited file-content review. This was not a comprehensive secret scan and is not a security guarantee.
-- The default branch had no `LICENSE` before 2026-10-18; an MIT license for the shared documentation and templates was added in #24 (consistent with `ai-software-team`, which GitHub reports as MIT).
-
 ## `ibrahim-ai-team/.github` settings inspected on 2026-10-20
 
 Read with an admin-scoped integration token through the GitHub REST API. No settings were changed.
 
 | Control | Status | Action classification | Evidence | How to fix |
 | --- | --- | --- | --- |
-| Branch protection on `main` | NOT CONFIGURED | NOT DONE — application and live verification pending | `GET /branches/main/protection` → 404 "Branch not protected"; `GET /branches/main` reports `protected: false` | Apply `../.github/rulesets/main-protection.json` using the branch-protection steps below. |
-| Rulesets, including inherited organization rulesets | NOT CONFIGURED | NOT DONE — application and live verification pending | `GET /rulesets?includes_parents=true` → `[]`; `GET /rules/branches/main` → `[]` | **Settings → Rules → Rulesets → New ruleset → Import a ruleset**; activate a ruleset targeting `refs/heads/main`. |
-| Required pull request reviews and status checks | NOT CONFIGURED | NOT DONE — resolve the single-admin deadlock before application | No protection or ruleset applied to `main` at inspection time | In the imported ruleset, require pull requests and the `yaml-lint`, `markdown-lint`, and `protection-check` checks; resolve the single-admin approval-count risk before activation. |
-| Force-push and branch-deletion restrictions | NOT CONFIGURED | NOT DONE — application and live verification pending | No protection or ruleset applied to `main` at inspection time | In **Settings → Rules → Rulesets**, enable **Block force pushes** and **Restrict deletions**. |
-| Secret scanning | NOT CONFIGURED | NOT DONE unless a verified plan/eligibility restriction blocks it | `security_and_analysis.secret_scanning.status: disabled` | **Settings → Security → Code security → Secret scanning → Enable**. |
-| Secret scanning push protection | NOT CONFIGURED | NOT DONE unless a verified plan/eligibility restriction blocks it | `security_and_analysis.secret_scanning_push_protection.status: disabled` | **Settings → Security → Code security → Push protection → Enable**. |
-| Dependabot security updates | NOT CONFIGURED | NOT DONE — enable and verify | `security_and_analysis.dependabot_security_updates.status: disabled` | **Settings → Security → Code security → Dependabot security updates → Enable**. |
-| Dependabot alerts | NOT VERIFIED | BLOCKED BY PERMISSIONS — recorded inspection returned 403 | `GET /vulnerability-alerts` was blocked for the reviewing integration (403) | Open **Settings → Security → Code security**, enable **Dependabot alerts**, then verify with the admin CLI/API or settings page. |
-| Code scanning default setup | NOT CONFIGURED | NOT DONE — reassess when analyzable code exists | `GET /code-scanning/default-setup` → `state: not-configured`; no analyzable code existed at inspection time | Reassess when the repository gains analyzable code; if applicable, open **Settings → Security → Code security → Code scanning** and configure default setup. |
-| Private vulnerability reporting | NOT CONFIGURED | NOT DONE — enable and verify | `GET /private-vulnerability-reporting` → `enabled: false` | **Settings → Security → Code security → Private vulnerability reporting → Enable**. |
-| GitHub Actions permissions and allowed-actions policy | NOT VERIFIED | BLOCKED BY PERMISSIONS — recorded inspection returned 403 | `GET /actions/permissions` was blocked for the reviewing integration (403) | Use an admin account to inspect **Settings → Actions → General**; set least-privilege workflow permissions and an explicit allowed-actions policy, then record evidence. |
-| GitHub Actions workflows | NOT VERIFIED on `main` | NOT VERIFIED — inspect current default branch and settings | PR #30 adds a workflow on its feature branch; the 2026-10-20 baseline on `main` had `total_count: 0` | Review the workflow and permissions in PR #30; after merge, confirm **Settings → Actions** policy and `gh api repos/ibrahim-ai-team/.github/actions/workflows`. |
-| Repository collaborators | VERIFIED | NOT DONE — second trusted admin/reviewer decision pending | One collaborator, `IbrhimGhorafi`, with the `admin` role | Add a second trusted owner/admin only after confirming the person's identity and need; follow **Bus factor mitigation** below. |
+| Branch protection on `main` | NOT CONFIGURED | `GET /branches/main/protection` → 404 "Branch not protected"; `GET /branches/main` reports `protected: false` | Apply `../.github/rulesets/main-protection.json` using the branch-protection steps below. |
+| Rulesets, including inherited organization rulesets | NOT CONFIGURED | `GET /rulesets?includes_parents=true` → `[]`; `GET /rules/branches/main` → `[]` | **Settings → Rules → Rulesets → New ruleset → Import a ruleset**; activate a ruleset targeting `refs/heads/main`. |
+| Required pull request reviews and status checks | NOT CONFIGURED | No protection or ruleset applied to `main` at inspection time | In the imported ruleset, require pull requests and the `yaml-lint`, `markdown-lint`, and `protection-check` checks; resolve the single-admin approval-count risk before activation. |
+| Force-push and branch-deletion restrictions | NOT CONFIGURED | No protection or ruleset applied to `main` at inspection time | In **Settings → Rules → Rulesets**, enable **Block force pushes** and **Restrict deletions**. |
+| Secret scanning | NOT CONFIGURED | `security_and_analysis.secret_scanning.status: disabled` | **Settings → Security → Code security → Secret scanning → Enable**. |
+| Secret scanning push protection | NOT CONFIGURED | `security_and_analysis.secret_scanning_push_protection.status: disabled` | **Settings → Security → Code security → Push protection → Enable**. |
+| Dependabot security updates | NOT CONFIGURED | `security_and_analysis.dependabot_security_updates.status: disabled` | **Settings → Security → Code security → Dependabot security updates → Enable**. |
+| Dependabot alerts | NOT VERIFIED | `GET /vulnerability-alerts` was blocked for the reviewing integration (403) | Open **Settings → Security → Code security**, enable **Dependabot alerts**, then verify with the admin CLI/API or settings page. |
+| Code scanning default setup | NOT CONFIGURED | `GET /code-scanning/default-setup` → `state: not-configured`; no analyzable code existed at inspection time | Reassess when the repository gains analyzable code; if applicable, open **Settings → Security → Code security → Code scanning** and configure default setup. |
+| Private vulnerability reporting | NOT CONFIGURED | `GET /private-vulnerability-reporting` → `enabled: false` | **Settings → Security → Code security → Private vulnerability reporting → Enable**. |
+| GitHub Actions permissions and allowed-actions policy | NOT VERIFIED | `GET /actions/permissions` was blocked for the reviewing integration (403) | Use an admin account to inspect **Settings → Actions → General**; set least-privilege workflow permissions and an explicit allowed-actions policy, then record evidence. |
+| GitHub Actions workflows | NOT VERIFIED | `ci.yml` was merged to `main` in PR #30 (after the 2026-10-20 inspection, which reported `total_count: 0`); runs and enforcement have not been re-inspected | Confirm with `gh api repos/ibrahim-ai-team/.github/actions/workflows` and recent runs on `main`, then record evidence. |
+| Repository collaborators | VERIFIED | One collaborator, `IbrhimGhorafi`, with the `admin` role | Add a second trusted owner/admin only after confirming the person's identity and need; follow **Bus factor mitigation** below. |
 
 ### Gaps and proposed actions
 
@@ -131,11 +121,10 @@ This grants organization **admin/owner-level** membership; it is a high-impact a
 Run from the repository root:
 
 ```sh
-chmod +x scripts/verify_repo_hardening.sh
 scripts/verify_repo_hardening.sh
 ```
 
-Each control prints `PASS` or `FAIL` and a `How to fix:` action. The script exits 1 if any control fails and exits 2 if `gh` is unavailable or unauthenticated. CI uses `--ci`, which prints an explicit warning and exits 0 if GitHub CLI/authentication is unavailable; settings failures with working authentication remain visible as failures.
+Each control prints `PASS` or `FAIL` and a `How to fix:` action. The script exits 1 if any control fails and exits 2 if `gh` is unavailable or unauthenticated. CI uses `--ci` with the workflow token: it checks only the branch rules (the token cannot read admin-only security settings), reports gaps as warning annotations, and exits 0, because `protection-check` is itself a required check and failing before protection exists would deadlock setup. Run the script locally with an admin account for the full check.
 
 ## Verification procedure
 
