@@ -18,6 +18,8 @@ Actionable issues should describe the problem and intended outcome, scope, testa
 
 ### Canonical board status mapping
 
+<!-- Parser contract: scripts/check_state_drift.py parses this exact heading and the `- <label> → `ENUM_VALUE`` mapping format. Do not rename the heading or reformat the mapping without updating the script and CI fixtures. -->
+
 The organization board uses the following eight display labels, mapped to the implementation's `TaskStatus` enum. The complete enum and allowed transitions remain authoritative in `models/status.py` and `workflows/project-status-transitions.md`.
 
 - Backlog → `BACKLOG`
@@ -55,9 +57,9 @@ Repositories may add their own labels for work that only concerns them. Add an o
 1. Use a focused branch for non-trivial work; do not commit directly to `main`.
 2. Link the issue and explain the change, validation performed, risks, and follow-up work.
 3. Request review and resolve feedback before merging.
-4. Keep final merge authority with the human maintainer.
+4. Require explicit human approval before merge. See the [contribution guidance](../CONTRIBUTING.md) and the [pull request template](../.github/PULL_REQUEST_TEMPLATE.md).
 5. Close work only when accepted, with a merged PR, commit, verified settings evidence, or a clear not-planned rationale.
 
 ## Triage
 
-Review the organization backlog monthly and before sprint planning. Identify duplicates carefully, update stale priorities, record blockers and next actions, and avoid opening repeated issues for the same work. For implementation-specific procedures, use the [AI Software Team repository](https://github.com/ibrahim-ai-team/ai-software-team).
+Follow the [organization maintenance checklist](MAINTENANCE.md) for review cadence and recurring maintenance activities. For implementation-specific procedures, use the [AI Software Team repository](https://github.com/ibrahim-ai-team/ai-software-team).

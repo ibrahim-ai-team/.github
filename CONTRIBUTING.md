@@ -14,7 +14,7 @@ Thank you for helping improve the organization's repositories and AI-assisted en
 - Keep each pull request small and related to one issue or coherent change.
 - Describe the motivation, important changes, validation performed, risks, and any follow-up work.
 - Link the relevant issue using `Closes #123` only when the pull request fully resolves that issue.
-- Human maintainers retain final merge authority. Do not assume approval or merge permission from automated checks alone.
+- Require explicit human approval before merge; automated checks do not replace human review. See the [organization delivery workflow](docs/WORKFLOW.md).
 - Never force-push shared branches or bypass required review/checks.
 
 ## Quality and security

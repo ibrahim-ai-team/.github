@@ -14,7 +14,7 @@ def parse_board_mapping(workflow_path: Path) -> dict[str, str]:
     )
     if not section:
         raise ValueError(
-            f"{workflow_path}: missing '### Canonical board status mapping' section"
+            f"{workflow_path}: expected heading '### Canonical board status mapping' and mapping lines matching '- <label> → ENUM_VALUE'"
         )
     mapping: dict[str, str] = {}
     for label, enum_value in re.findall(
@@ -24,7 +24,7 @@ def parse_board_mapping(workflow_path: Path) -> dict[str, str]:
     ):
         mapping[label.strip()] = enum_value
     if not mapping:
-        raise ValueError(f"{workflow_path}: no '<label> → `ENUM_VALUE`' mappings found")
+        raise ValueError(f"{workflow_path}: expected heading '### Canonical board status mapping' and mapping lines matching '- <label> → ENUM_VALUE'; no valid mappings found")
     return mapping
 
 
@@ -32,8 +32,20 @@ def parse_task_status_values(model_path: Path) -> set[str]:
     text = model_path.read_text(encoding="utf-8")
     match = re.search(r"^class TaskStatus\([^\n]+\):[ \t]*(.*?)(?=^class |\Z)", text, re.M | re.S)
     if not match:
-        raise ValueError(f"{model_path}: TaskStatus enum not found")
-    return set(re.findall(r"^\s+[A-Z][A-Z0-9_]*\s*=\s*['\"]([A-Z_]+)['\"]", match.group(1), re.M))
+        raise ValueError(
+            f"{model_path}: expected a TaskStatus class declaration and enum assignments "
+            "matching INDENT + UPPERCASE_NAME = 'UPPERCASE_ENUM_VALUE' "
+            "(or double-quoted equivalent); TaskStatus enum not found"
+        )
+    values = set(re.findall(r"^\s+[A-Z][A-Z0-9_]*\s*=\s*['\"]([A-Z_]+)['\"]\s*$", match.group(1), re.M))
+    if not values:
+        raise ValueError(
+            f"{model_path}: expected TaskStatus assignments matching "
+            "INDENT + UPPERCASE_NAME = 'UPPERCASE_ENUM_VALUE' "
+            "(or double-quoted equivalent); no supported enum assignments found. "
+            "Inline comments and auto() are not supported."
+        )
+    return values
 
 
 def documented_internal_only(workflow_path: Path) -> set[str]:

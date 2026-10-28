@@ -1,5 +1,11 @@
 # Security Policy
 
+## Current reporting-channel status
+
+**Status as of 2026-10-20: NOT CONFIGURED.** The security baseline inspection recorded GitHub private vulnerability reporting as disabled for `ibrahim-ai-team/.github`. This is a dated observation, not confirmation of the current live setting; current status requires authenticated GitHub verification.
+
+**Private fallback:** Contact the organization owner through the [Ibrahim AI Team GitHub profile](https://github.com/ibrahim-ai-team) and request a private reporting channel. Do not publish exploit details, credentials, or sensitive security information in an issue or pull request. If you cannot establish a private channel, do not disclose sensitive reproduction details publicly.
+
 ## Reporting a vulnerability
 
 Please do **not** report exploitable vulnerabilities, credentials, or sensitive security details in a public issue or pull request.

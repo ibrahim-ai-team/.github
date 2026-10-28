@@ -1,6 +1,8 @@
 # Security Baseline and Verification Register
 
 **Last reviewed:** 2026-10-24  
+**Observations dated:** 2026-10-20  
+**Stale by:** 2026-11-23  
 **Purpose:** Track what is known versus what still requires an authenticated settings check. Documentation alone does not enable or prove a GitHub security control.
 
 ## Status vocabulary
@@ -26,7 +28,7 @@
 
 Read with an admin-scoped integration token through the GitHub REST API. No settings were changed.
 
-| Control | Status | Evidence | How to fix |
+| Control | Status | Action classification | Evidence | How to fix |
 | --- | --- | --- | --- |
 | Branch protection on `main` | NOT CONFIGURED | `GET /branches/main/protection` → 404 "Branch not protected"; `GET /branches/main` reports `protected: false` | Apply `../.github/rulesets/main-protection.json` using the branch-protection steps below. |
 | Rulesets, including inherited organization rulesets | NOT CONFIGURED | `GET /rulesets?includes_parents=true` → `[]`; `GET /rules/branches/main` → `[]` | **Settings → Rules → Rulesets → New ruleset → Import a ruleset**; activate a ruleset targeting `refs/heads/main`. |
@@ -46,13 +48,15 @@ Read with an admin-scoped integration token through the GitHub REST API. No sett
 
 These controls need action by an organization/repository owner. The prior issue [#26](https://github.com/ibrahim-ai-team/.github/issues/26) is closed, but the settings described here must not be considered fixed until the verification script passes.
 
-1. **Protect `main`.** Apply [`.github/rulesets/main-protection.json`](../.github/rulesets/main-protection.json). It requires a pull request, one approval, CI checks, linear history, and blocks force-push/deletion. There is currently only one verified admin; one required approval can deadlock merges until a second reviewer/admin is added. If you cannot add one now, change the ruleset approval count to 0 temporarily and record that exception.
+0. **Resolve the single-admin approval deadlock first.** Before enabling a rule requiring one approving review, either add a second trusted, qualified reviewer/admin and verify their access, or obtain explicit authorization for a temporary zero-approval exception with a documented expiry date and restoration plan. Do not activate an unworkable approval requirement. See [RULESET-APPLICATION.md](RULESET-APPLICATION.md).\n1. **Protect `main`.** Apply [`.github/rulesets/main-protection.json`](../.github/rulesets/main-protection.json), verify exact status-check names against `.github/workflows/ci.yml`, and confirm live enforcement.
 2. **Enable secret scanning and push protection** using the exact steps below.
 3. **Enable private vulnerability reporting.** [SECURITY.md](../SECURITY.md) names it as the first reporting route. Until enabled, reporters fall through to the second route (contacting the owner).
 4. **Enable Dependabot alerts and security updates**, then verify both.
 5. Revisit code scanning and Actions policy when the repository gains analyzable code or additional workflows.
 
 ## How to apply branch protection
+
+Before importing the ruleset, complete Step 0 in [RULESET-APPLICATION.md](RULESET-APPLICATION.md), verify required status-check names against `.github/workflows/ci.yml`, and obtain explicit authorization for the settings change.
 
 ### Option A — GitHub UI / ruleset import
 
@@ -61,7 +65,7 @@ These controls need action by an organization/repository owner. The prior issue 
 3. Select **New ruleset → Import a ruleset** (the label may appear as **Import ruleset**).
 4. Select the file `.github/rulesets/main-protection.json` from the branch/checkout and upload/import it. If the UI does not accept a repository file directly, download that JSON file to your device first, then import the downloaded file.
 5. Confirm the target is branch `main` (condition `refs/heads/main`), enforcement is **Active**, pull requests are required, the listed CI status checks match the checks reported by the new workflow, force pushes and deletion are blocked, and linear history is enabled.
-6. **Before saving:** one approving review is configured. The inventory currently verifies only one admin. Add a second qualified reviewer/admin first, or change `required_approving_review_count` to `0` temporarily to avoid locking out the sole maintainer.
+6. **Before saving:** confirm the approval requirement is workable under the explicitly authorized Step 0 decision. Do not assume one admin can approve their own pull request.
 7. Save the ruleset. Open **Settings → Rules → Rulesets** again and confirm the ruleset appears with **Active** enforcement.
 
 ### Option B — GitHub CLI / REST API
@@ -134,3 +138,7 @@ Each control prints `PASS` or `FAIL` and a `How to fix:` action. The script exit
 ## Completion rule
 
 Issue #6 is complete only when the inventory is reviewed and each repository has a confirmed named owner or an explicit accepted ownership gap. Issue #7 is complete only after applicable controls have been inspected and gaps have owners/actions. A merged document does not configure any setting.
+
+## Future parser decision
+
+The CI checks intentionally use Python's standard library and limited structural checks rather than a full YAML parser. This keeps dependencies small but cannot validate every YAML semantic rule. Reassess a full YAML parser only if the maintenance burden or consequences of missed structural errors justify the additional dependency; obtain maintainer approval before introducing it.
