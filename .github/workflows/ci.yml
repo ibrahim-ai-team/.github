@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    - cron: "17 6 * * 1"  # weekly: catch drift introduced by ai-software-team changes
 
 permissions:
   contents: read
@@ -42,6 +44,20 @@ jobs:
         run: python scripts/validate_repo.py markdown
       - name: Unit-test governance scripts
         run: python -m unittest discover -s tests -v
+
+  # Not a required check: drift can come from another repository, so it must not block unrelated PRs.
+  state-drift:
+    name: state-drift
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout source with built-in Git
+        env:
+          REF: ${{ github.event_name == 'pull_request' && format('refs/pull/{0}/merge', github.event.pull_request.number) || github.sha }}
+        run: |
+          git init -q .
+          git fetch --no-tags --depth=1 "https://github.com/${GITHUB_REPOSITORY}.git" "$REF"
+          git checkout -q --detach FETCH_HEAD
       - name: Check board mapping against ai-software-team TaskStatus
         run: |
           git clone -q --depth=1 https://github.com/ibrahim-ai-team/ai-software-team.git ../ai-software-team
@@ -59,5 +75,7 @@ jobs:
           git init -q .
           git fetch --no-tags --depth=1 "https://github.com/${GITHUB_REPOSITORY}.git" "$REF"
           git checkout -q --detach FETCH_HEAD
-      - name: Verify live repository hardening (warning-only without authenticated gh)
+      - name: Verify branch rules (warnings only; admin-only settings are checked locally)
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: scripts/verify_repo_hardening.sh --ci

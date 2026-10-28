@@ -120,7 +120,7 @@ Run from the repository root:
 scripts/verify_repo_hardening.sh
 ```
 
-Each control prints `PASS` or `FAIL` and a `How to fix:` action. The script exits 1 if any control fails and exits 2 if `gh` is unavailable or unauthenticated. CI uses `--ci`, which prints an explicit warning and exits 0 if GitHub CLI/authentication is unavailable; settings failures with working authentication remain visible as failures.
+Each control prints `PASS` or `FAIL` and a `How to fix:` action. The script exits 1 if any control fails and exits 2 if `gh` is unavailable or unauthenticated. CI uses `--ci` with the workflow token: it checks only the branch rules (the token cannot read admin-only security settings), reports gaps as warning annotations, and exits 0, because `protection-check` is itself a required check and failing before protection exists would deadlock setup. Run the script locally with an admin account for the full check.
 
 ## Verification procedure
 
