@@ -22,16 +22,6 @@
 | `ibrahim-ai-team/ai-software-team` archived | VERIFIED | Connected repository listing reports false |
 | Repositories visible in connected organization listing | VERIFIED | Listing returned `.github` and `ai-software-team`; this is a point-in-time connected-account view, not proof that no other repositories exist |
 
-## Checks performed on 2026-10-20
-
-The 2026-10-20 inspection below supersedes the NOT VERIFIED results here for `.github` branch protection and rulesets.
-
-- A read of the repository rulesets endpoint returned an empty list in the connected view. This does **not** prove that no inherited organization rules or other enforcement mechanisms apply.
-- The branch-protection endpoint for `main` returned HTTP 403 (Resource not accessible by integration). Branch protection, required reviews, required checks, and force-push/deletion restrictions therefore remain **NOT VERIFIED**.
-- The available repository tree contains no local GitHub Actions workflow files. This does not verify organization-wide Actions policy or settings.
-- No credentials or obvious secrets were identified during the limited file-content review. This was not a comprehensive secret scan and is not a security guarantee.
-- The default branch had no `LICENSE` before 2026-10-18; an MIT license for the shared documentation and templates was added in #24 (consistent with `ai-software-team`, which GitHub reports as MIT).
-
 ## `ibrahim-ai-team/.github` settings inspected on 2026-10-20
 
 Read with an admin-scoped integration token through the GitHub REST API. No settings were changed.
@@ -49,7 +39,7 @@ Read with an admin-scoped integration token through the GitHub REST API. No sett
 | Code scanning default setup | NOT CONFIGURED | `GET /code-scanning/default-setup` → `state: not-configured`; no analyzable code existed at inspection time | Reassess when the repository gains analyzable code; if applicable, open **Settings → Security → Code security → Code scanning** and configure default setup. |
 | Private vulnerability reporting | NOT CONFIGURED | `GET /private-vulnerability-reporting` → `enabled: false` | **Settings → Security → Code security → Private vulnerability reporting → Enable**. |
 | GitHub Actions permissions and allowed-actions policy | NOT VERIFIED | `GET /actions/permissions` was blocked for the reviewing integration (403) | Use an admin account to inspect **Settings → Actions → General**; set least-privilege workflow permissions and an explicit allowed-actions policy, then record evidence. |
-| GitHub Actions workflows | NOT VERIFIED on `main` | PR #30 adds a workflow on its feature branch; the 2026-10-20 baseline on `main` had `total_count: 0` | Review the workflow and permissions in PR #30; after merge, confirm **Settings → Actions** policy and `gh api repos/ibrahim-ai-team/.github/actions/workflows`. |
+| GitHub Actions workflows | NOT VERIFIED | `ci.yml` was merged to `main` in PR #30 (after the 2026-10-20 inspection, which reported `total_count: 0`); runs and enforcement have not been re-inspected | Confirm with `gh api repos/ibrahim-ai-team/.github/actions/workflows` and recent runs on `main`, then record evidence. |
 | Repository collaborators | VERIFIED | One collaborator, `IbrhimGhorafi`, with the `admin` role | Add a second trusted owner/admin only after confirming the person's identity and need; follow **Bus factor mitigation** below. |
 
 ### Gaps and proposed actions
@@ -127,7 +117,6 @@ This grants organization **admin/owner-level** membership; it is a high-impact a
 Run from the repository root:
 
 ```sh
-chmod +x scripts/verify_repo_hardening.sh
 scripts/verify_repo_hardening.sh
 ```
 

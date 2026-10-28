@@ -14,6 +14,10 @@ It is **not** the implementation repository for the AI development team. Reusabl
 - `docs/SECURITY-BASELINE.md` — evidence register for repository metadata and security settings that still require verification.
 - `docs/MAINTENANCE.md` — lightweight maintenance checklist.
 - `CONTRIBUTING.md`, `SUPPORT.md`, and `SECURITY.md` — contribution, support, and vulnerability-reporting guidance.
+- `.github/workflows/ci.yml` — CI checks (`yaml-lint`, `markdown-lint`, `protection-check`) required by the ruleset.
+- `.github/rulesets/main-protection.json` — importable branch ruleset for `main`.
+- `.github/dependabot.yml` — weekly GitHub Actions version updates.
+- `scripts/` — repository validation, cross-repo state-drift check, and live hardening verification; `tests/` covers them.
 - `LICENSE` — MIT license for this repository's shared documentation and templates.
 
 ## How to use the shared defaults
